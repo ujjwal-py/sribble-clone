@@ -12,11 +12,14 @@ export interface Point {
   y: number; // 0..1 relative to canvas height
 }
 
+export type DrawTool = 'brush' | 'eraser' | 'fill';
+
 export interface Stroke {
   id: string;
+  tool: DrawTool;
   color: string;
-  size: number; // fraction of canvas width
-  points: Point[];
+  size: number; // fraction of canvas width; ignored for fills
+  points: Point[]; // fills use the first point as the flood-fill seed
 }
 
 export interface PlayerInfo {

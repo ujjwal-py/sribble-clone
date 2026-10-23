@@ -12,7 +12,8 @@ Built for an internship assignment with a deliberately small, readable codebase.
 - Join-order turns: every player draws once per round
 - Drawer gets word options and a 15-second auto-pick timer
 - Live canvas sync with normalized coordinates
-- Brush colors, thin/thick sizes, undo, and clear
+- Brush, eraser, and paint-bucket fill tools, with thin/thick sizes, undo, and clear
+- Persistent light/dark theme toggle on the home, join, lobby, and game screens
 - Server-checked guesses with strict trim + case-insensitive matching
 - Time-based scoring, live scoreboard, round reveal, and game-over standings
 - Host can return everyone to the lobby to replay with the same settings
@@ -40,6 +41,7 @@ scribble_web3task/
 │  │  ├─ pages/            # HomePage (create/join), RoomPage (state + sockets)
 │  │  ├─ App.tsx           # routes
 │  │  ├─ socket.ts         # one typed Socket.IO client
+│  │  ├─ theme.ts          # persisted light/dark preference
 │  │  ├─ types.ts          # client copies of payload types
 │  │  └─ styles.css
 │  └─ .env.example
@@ -175,14 +177,15 @@ The client reads `VITE_SERVER_URL` once at build/dev-server start, so restart Vi
 
 These match the build order and are easy to repeat manually.
 
-### Step 1 — Rooms and lobby
+### Step 1 — Theme, rooms, and lobby
 
-1. Create a room. Confirm the 6-character code and invite link appear.
-2. Open the invite link in a second window, enter another name, and join.
-3. Confirm both windows update the player list and the host badge.
-4. Confirm **Start game** is host-only and disabled with one player.
-5. Close the host's tab. The other player should become host.
-6. Try joining with a bad code, a full room, and a room that has already started; each should be rejected with a message.
+1. Toggle between **Dark** and **Light** mode. Reload the page and confirm your choice is remembered.
+2. Create a room. Confirm the 6-character code and invite link appear.
+3. Open the invite link in a second window, enter another name, and join.
+4. Confirm both windows update the player list and the host badge.
+5. Confirm **Start game** is host-only and disabled with one player.
+6. Close the host's tab. The other player should become host.
+7. Try joining with a bad code, a full room, and a room that has already started; each should be rejected with a message.
 
 ### Step 2 — Turns and word choice
 
@@ -197,8 +200,10 @@ These match the build order and are easy to repeat manually.
 1. Draw on the drawer's canvas. The other window should see strokes live.
 2. Resize either window. Existing strokes should stay in the same relative position.
 3. Try drawing in the guesser's window; nothing should happen.
-4. Click **Undo** and confirm the last stroke disappears for everyone.
-5. Draw again, click **Clear**, accept the confirmation, and confirm both canvases are blank.
+4. Select **Fill**, pick a color, and click empty canvas space. Both windows should fill that region.
+5. Select **Eraser** and drag through a filled area or stroke. Both windows should show white canvas again.
+6. Click **Undo** and confirm the last operation disappears for everyone, including fills and eraser strokes.
+7. Draw again, click **Clear**, accept the confirmation, and confirm both canvases are blank.
 
 ### Step 4 — Guessing and scoring
 
@@ -223,5 +228,6 @@ These match the build order and are easy to repeat manually.
 
 - **No identity-based reconnect.** Disconnecting removes the player, matching the assignment's leave rules. Refreshing mid-game loses the seat; the player can only rejoin once the room is back in the lobby. Stroke history is still included in room snapshots for future rejoin support.
 - Rooms are in memory; restarting the server deletes them.
-- No hints, eraser, categories, spectators, chat, avatars, custom words, or replay.
+- No hints, categories, spectators, general chat, avatars, custom words, or replay.
+- The eraser paints white on the intentionally white drawing surface. The paint bucket is rasterized in each browser; the server records its order and authorizes the drawer, but does not rasterize pixels itself.
 - Countdowns are displayed from server-provided end timestamps; the server timers still decide when actions actually end.

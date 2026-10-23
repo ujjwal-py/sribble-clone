@@ -19,8 +19,11 @@ export interface Point {
   y: number;
 }
 
+export type DrawTool = 'brush' | 'eraser' | 'fill';
+
 export interface Stroke {
   id: string;
+  tool: DrawTool;
   color: string;
   size: number;
   points: Point[];
@@ -125,7 +128,13 @@ export interface ClientToServerEvents {
   join_room: (payload: { code: string; name: string }, ack: JoinAck) => void;
   start_game: () => void;
   word_chosen: (payload: { word: string }) => void;
-  draw_start: (payload: { x: number; y: number; color: string; size: number }) => void;
+  draw_start: (payload: {
+    x: number;
+    y: number;
+    color: string;
+    size: number;
+    tool: DrawTool;
+  }) => void;
   draw_move: (payload: { x: number; y: number }) => void;
   draw_end: () => void;
   draw_undo: () => void;

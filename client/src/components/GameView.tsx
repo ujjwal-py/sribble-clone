@@ -1,6 +1,7 @@
 import { useState, type RefObject } from 'react';
 import type {
   ChatMessage,
+  DrawTool,
   GameOverPayload,
   RoundEndPayload,
   RoomState,
@@ -12,6 +13,7 @@ import GameOverScreen from './GameOverScreen';
 import GuessPanel from './GuessPanel';
 import PlayersPanel from './PlayersPanel';
 import RoundEndOverlay from './RoundEndOverlay';
+import ThemeToggle from './ThemeToggle';
 import WordChoice from './WordChoice';
 
 interface GameViewProps {
@@ -49,6 +51,7 @@ export default function GameView({
 }: GameViewProps) {
   const [color, setColor] = useState('#111827');
   const [size, setSize] = useState(0.005);
+  const [tool, setTool] = useState<DrawTool>('brush');
 
   const isDrawer = room.drawerId === playerId;
   const drawer = room.players.find((player) => player.id === room.drawerId);
@@ -86,6 +89,7 @@ export default function GameView({
 
         <div className="topbar-right">
           {topbarEnd && <Countdown endsAt={topbarEnd} label="Time" />}
+          <ThemeToggle />
           <button type="button" className="btn btn-ghost" onClick={onLeave}>
             Leave
           </button>
@@ -124,7 +128,13 @@ export default function GameView({
           </div>
 
           <div className="canvas-frame">
-            <CanvasBoard ref={canvasRef} canDraw={canDraw} color={color} size={size} />
+            <CanvasBoard
+              ref={canvasRef}
+              canDraw={canDraw}
+              tool={tool}
+              color={color}
+              size={size}
+            />
 
             {room.phase === 'choosing' &&
               (isDrawer && options ? (
@@ -161,8 +171,10 @@ export default function GameView({
 
           {isDrawer && room.phase === 'drawing' && (
             <DrawingToolbar
+              tool={tool}
               color={color}
               size={size}
+              onToolChange={setTool}
               onColorChange={setColor}
               onSizeChange={setSize}
               onUndo={onUndo}

@@ -52,7 +52,7 @@ class Room {
   settings: RoomSettings;
   players: Player[];            // array order = join order = turn order base
   hostId: string | null;
-  strokes: Stroke[];            // current turn's drawing
+  strokes: Stroke[];            // current turn's ordered drawing operations
   game: Game;
   io: Server;
 }
@@ -152,12 +152,18 @@ Joining is only allowed in the `lobby` phase, which enforces "game not already s
 
 ### Drawing
 
-1. Drawer's canvas emits `draw_start { x, y, color, size }`.
+1. Drawer's canvas emits `draw_start { x, y, color, size, tool }`, where `tool` is `brush`, `eraser`, or `fill`.
 2. Server checks `phase === 'drawing'` and `drawerId === socket.id`.
-3. Server creates `{ id, color, size, points: [{x, y}] }`, appends it to `room.strokes`, and emits `draw_data { type: 'start', stroke }` to everyone **except** the drawer.
-4. `draw_move { x, y }` appends to the last stroke and forwards a `draw_data { type: 'move', strokeId, x, y }`.
+3. Server creates `{ id, tool, color, size, points: [{x, y}] }`, appends it to `room.strokes`, and emits `draw_data { type: 'start', stroke }` to everyone **except** the drawer.
+4. For a brush or eraser, `draw_move { x, y }` appends to the last stroke and forwards a `draw_data { type: 'move', strokeId, x, y }`. Moves are ignored when the last operation is a fill.
 5. `draw_end` forwards `{ type: 'end', strokeId }`.
 6. The drawer renders locally at the same time, so it does not wait for a round trip.
+
+Tool-specific rules live on the server:
+
+- **Eraser:** the server forces the color to `#ffffff`. The drawing surface is white, so white paint is visually equivalent to erasing while staying replayable with the same stroke model.
+- **Fill:** the server forces size to `0` and stores only the click seed. The actual flood fill runs in each browser, then the operation is replayed in order on redraw/undo.
+- **Unknown tool:** falls back to `brush`; fill moves and non-drawer drawing events are dropped.
 
 ### Guessing
 
@@ -205,15 +211,24 @@ In addition:
 type Point = { x: number; y: number }; // 0..1
 type Stroke = {
   id: string;
+  tool: 'brush' | 'eraser' | 'fill';
   color: string;
-  size: number; // fraction of canvas width
-  points: Point[];
+  size: number; // fraction of canvas width; 0 for fills
+  points: Point[]; // fills use the first point as the flood-fill seed
 };
 ```
 
 Coordinates are normalized against the canvas bounding box. The renderer multiplies by the actual canvas width/height, so a stroke drawn on a 500px canvas lands in the same relative place on a 1200px canvas.
 
-Brush size is also normalized. `0.005` and `0.015` become `size * canvas.width`, which keeps thin/thick visually consistent across screen sizes.
+Brush size is also normalized. `0.005` and `0.015` become `size * canvas.width`, which keeps thin/thick visually consistent across screen sizes. The eraser uses a larger derived width from the selected brush size.
+
+### Tools and raster operations
+
+- **Brush:** standard round, joined canvas path in the selected color.
+- **Eraser:** the same path model in white. This is deliberately simple because the drawing surface never changes color.
+- **Fill:** a scanline flood fill over the current `ImageData`, starting at the normalized click point. It stops on the first non-matching pixel, so anti-aliased stroke edges form the boundary.
+
+Fills are stored as one operation with a single seed point, not as a bitmap. `draw_undo`, `canvas_clear`, and `game_state` therefore keep working with the existing ordered stroke list. On a full redraw, clients fill the canvas white and replay brush, eraser, and fill operations in order. The server owns the operation order and validates the sender; pixel rasterization is necessarily local to each browser, so a fill boundary can differ by a few pixels between different canvas resolutions.
 
 ### Rendering model
 
@@ -238,7 +253,7 @@ Incoming `draw_data` events do not trigger React state updates for every point. 
 
 ### Undo and clear
 
-- Undo: server pops the last stroke and broadcasts the complete `strokes` list. All clients clear and redraw from that authoritative list. This also replaces the drawer's local copy.
+- Undo: server pops the last operation and broadcasts the complete `strokes` list. All clients clear and redraw from that authoritative list, replaying fills and strokes in order. This also replaces the drawer's local copy.
 - Clear: server empties `strokes` and broadcasts `canvas_clear`; every client resets its canvas.
 
 ### Resize and re-sync
@@ -321,12 +336,15 @@ The server also sends absolute deadlines (`chooseEndsAt`, `endsAt`, `nextAt`). C
 - `RoomPage` owns all socket listeners and the main room state (players, phase, deadlines, chat, overlays).
 - `Lobby` and `GameView` are presentation components.
 - `CanvasBoard` handles pointer input, local drawing, remote drawing, DPR resizing, and redraws.
-- `DrawingToolbar` only emits undo/clear intents; the server confirms by broadcasting the canonical canvas.
+- `DrawingToolbar` selects brush/eraser/fill and only emits undo/clear intents; the server confirms by broadcasting the canonical canvas.
 - `GuessPanel` only emits guess text; it never compares words.
 - `Countdown` derives seconds from a server timestamp.
+- `ThemeToggle` reads/writes `scribble-theme` in `localStorage`; the inline script in `index.html` applies the stored or OS preference before React renders to avoid a light flash.
 - `socket.ts` is a single typed Socket.IO client pointed at `VITE_SERVER_URL`.
 
-The client's only optimistic behavior is the drawer's local stroke while it is being drawn. Everything else waits for a server event.
+The client's optimistic behavior is limited to drawing that the current drawer is performing (including the local flood fill). Everything else waits for a server event.
+
+Dark mode is pure CSS: `data-theme="dark"` on `<html>` switches the custom properties for surfaces, text, borders, focus rings, and shadows. The canvas itself stays white in both themes so drawings and eraser strokes keep consistent colors.
 
 ## 11. Extra event names
 
@@ -343,5 +361,6 @@ The required event names are used. Four small events were added because they mak
 
 - **No token-based reconnect.** `id` is the socket id, and a disconnect removes the player. This matches the assignment's leave rules. Supporting refresh/reconnect mid-game would require a persistent player token, a grace period, and turn-order restoration.
 - Rooms are process memory only. Restarting the server deletes them.
+- **Fill is rasterized client-side.** The server records and orders the operation and validates the drawer, but does not run a canvas rasterization engine. Fill boundaries can differ by a few pixels across very different canvas sizes.
 - The countdown display uses the browser clock. The server's timers remain authoritative; clock skew only affects what the number looks like.
-- The client throttles drawing, but the server does not rate-limit malicious clients beyond validating sender, phase, coordinate ranges, stroke length, and color/size formats.
+- The client throttles drawing, but the server does not rate-limit malicious clients beyond validating sender, phase, coordinate ranges, stroke length, tool, and color/size formats.

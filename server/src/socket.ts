@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { rooms } from './game/RoomManager';
 import { Room } from './game/Room';
-import { JoinAck, Point, RoomSettings } from './types';
+import { DrawTool, JoinAck, Point, RoomSettings } from './types';
 import { makeId } from './utils/random';
 
 const DEFAULT_SETTINGS: RoomSettings = {
@@ -54,10 +54,14 @@ function validColor(value: unknown): string {
   return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value) ? value : '#111827';
 }
 
-function validSize(value: unknown): number {
+function validSize(value: unknown, max = 0.03): number {
   const number = Number(value);
   if (!Number.isFinite(number)) return 0.006;
-  return Math.min(0.03, Math.max(0.002, number));
+  return Math.min(max, Math.max(0.002, number));
+}
+
+function validTool(value: unknown): DrawTool {
+  return value === 'eraser' || value === 'fill' ? value : 'brush';
 }
 
 function leaveRoom(socket: Socket): void {
@@ -193,10 +197,17 @@ export function registerSocketHandlers(io: Server): void {
       const room = currentRoom(socket);
       if (!room || !room.game.canDraw(socket.id)) return;
 
+      const tool = validTool(payload?.tool);
       const stroke = {
         id: makeId(),
-        color: validColor(payload?.color),
-        size: validSize(payload?.size),
+        tool,
+        // The drawing surface is white, so an eraser is simply white paint.
+        // Forcing the color server-side prevents a mismatched client palette.
+        color: tool === 'eraser' ? '#ffffff' : validColor(payload?.color),
+        size:
+          tool === 'fill'
+            ? 0
+            : validSize(payload?.size, tool === 'eraser' ? 0.07 : 0.03),
         points: [{ x: clamp01(payload?.x), y: clamp01(payload?.y) }],
       };
 
@@ -209,7 +220,8 @@ export function registerSocketHandlers(io: Server): void {
       if (!room || !room.game.canDraw(socket.id)) return;
 
       const stroke = room.strokes[room.strokes.length - 1];
-      if (!stroke) return;
+      // A fill is a single operation; it has no line to extend.
+      if (!stroke || stroke.tool === 'fill') return;
 
       // A simple safety cap on a single stroke's history.
       if (stroke.points.length >= 5000) return;

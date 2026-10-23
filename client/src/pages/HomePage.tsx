@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../components/ThemeToggle';
 import { socket } from '../socket';
 import type { JoinResponse, RoomSettings } from '../types';
 
@@ -128,9 +129,12 @@ export default function HomePage() {
     <div className="home-page">
       <main className="home-inner">
         <header className="hero">
-          <div className="mini-brand">
-            <span className="brand-mark">S</span>
-            <span>Scribble</span>
+          <div className="hero-top">
+            <div className="mini-brand">
+              <span className="brand-mark">S</span>
+              <span>Scribble</span>
+            </div>
+            <ThemeToggle />
           </div>
           <h1>Draw it. Guess it. Laugh about it.</h1>
           <p className="hero-subtitle">

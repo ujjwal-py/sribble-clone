@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { CanvasHandle } from '../components/CanvasBoard';
 import GameView from '../components/GameView';
 import Lobby from '../components/Lobby';
+import ThemeToggle from '../components/ThemeToggle';
 import { socket } from '../socket';
 import type {
   ChatMessage,
@@ -274,7 +275,10 @@ export default function RoomPage() {
     return (
       <div className="center-page">
         <form className="card join-room-card" onSubmit={handleJoin}>
-          <p className="eyebrow">Room {expectedCode || 'unknown'}</p>
+          <div className="join-room-top">
+            <p className="eyebrow">Room {expectedCode || 'unknown'}</p>
+            <ThemeToggle />
+          </div>
           <h1>Join the game</h1>
           <p className="muted">Enter a name to take a seat in this room.</p>
 

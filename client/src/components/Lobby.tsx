@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { RoomState } from '../types';
 import PlayersPanel from './PlayersPanel';
+import ThemeToggle from './ThemeToggle';
 
 interface LobbyProps {
   room: RoomState;
@@ -31,9 +32,12 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
           <span className="brand-mark">S</span>
           <span>Scribble</span>
         </div>
-        <button type="button" className="btn btn-ghost" onClick={onLeave}>
-          Leave room
-        </button>
+        <div className="topbar-actions">
+          <ThemeToggle />
+          <button type="button" className="btn btn-ghost" onClick={onLeave}>
+            Leave room
+          </button>
+        </div>
       </header>
 
       <main className="lobby-grid">

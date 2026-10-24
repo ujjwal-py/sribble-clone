@@ -4,6 +4,8 @@ A multiplayer drawing-and-guessing game in the style of skribbl.io. One player d
 
 Built for an internship assignment with a deliberately small, readable codebase. Built by [Ujjwal](https://github.com/ujjwal-py/).
 
+**Play it live:** <https://sribble-clone-1.onrender.com/>
+
 ## What is included
 
 - Create a room with name, max players (2–20), rounds (2–10), draw time (15–240s), word options (1–5), and word categories
@@ -177,7 +179,7 @@ The client reads `VITE_SERVER_URL` once at build/dev-server start, so restart Vi
 3. Set `VITE_SERVER_URL` to the deployed server URL **before** building the client, and set the server's `CLIENT_ORIGIN` to the deployed client origin.
 4. The server must support WebSockets. If the host uses sticky sessions or a proxy, enable WebSocket upgrades.
 
-**Live URL:** `<https://your-live-url.example.com>` (placeholder)
+**Live URL:** <https://sribble-clone-1.onrender.com/>
 
 ## Testing checklist
 

@@ -1,8 +1,8 @@
-# Scribble
+# DoodleDash
 
 A multiplayer drawing-and-guessing game in the style of skribbl.io. One player draws a secret word, everyone else races to guess it, and the server owns the truth: turns, words, timers, guesses, and scores.
 
-Built for an internship assignment with a deliberately small, readable codebase.
+Built for an internship assignment with a deliberately small, readable codebase. Built by [Ujjwal](https://github.com/ujjwal-py/).
 
 ## What is included
 

@@ -368,7 +368,7 @@ The server also sends absolute deadlines (`chooseEndsAt`, `endsAt`, `nextAt`). C
 - `DrawingToolbar` selects brush/eraser/fill and only emits undo/clear intents; the server confirms by broadcasting the canonical canvas.
 - `GuessPanel` only emits guess text; it never compares words.
 - `Countdown` derives seconds from a server timestamp.
-- `ThemeToggle` reads/writes `scribble-theme` in `localStorage`; the inline script in `index.html` applies the stored or OS preference before React renders to avoid a light flash.
+- `ThemeToggle` reads/writes `doodledash-theme` in `localStorage`; the inline script in `index.html` applies the stored or OS preference before React renders to avoid a light flash.
 - `main.tsx` loads the self-hosted Fontsource faces: **Fredoka Variable** for display text and **Nunito Variable** for body text. `lucide-react` supplies the icon set used across the lobby, toolbar, status messages, and overlays.
 - `socket.ts` is a single typed Socket.IO client pointed at `VITE_SERVER_URL`.
 

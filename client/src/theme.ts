@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark';
 
-const STORAGE_KEY = 'scribble-theme';
+const STORAGE_KEY = 'doodledash-theme';
 
 export function getInitialTheme(): Theme {
   // The inline script in index.html applies the theme before React renders.

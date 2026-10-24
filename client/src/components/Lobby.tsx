@@ -47,8 +47,8 @@ export default function Lobby({ room, playerId, onStart, onKick, onLeave }: Lobb
     <div className="lobby-page">
       <header className="lobby-topbar">
         <div className="mini-brand">
-          <span className="brand-mark">S</span>
-          <span>Scribble</span>
+          <span className="brand-mark">D</span>
+          <span>DoodleDash</span>
         </div>
         <div className="topbar-actions">
           <ThemeToggle />

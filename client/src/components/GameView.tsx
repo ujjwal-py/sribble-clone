@@ -76,8 +76,8 @@ export default function GameView({
       <header className="game-topbar">
         <div className="topbar-left">
           <div className="mini-brand">
-            <span className="brand-mark">S</span>
-            <span>Scribble</span>
+            <span className="brand-mark">D</span>
+            <span>DoodleDash</span>
           </div>
           <span className="room-pill">{room.code}</span>
         </div>

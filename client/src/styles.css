@@ -689,23 +689,56 @@ button:disabled {
 }
 
 .home-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 10px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
   padding-top: 24px;
   color: var(--subtle);
   font-size: 0.76rem;
   font-weight: 600;
 }
 
-.home-footer span {
+.home-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 10px;
+}
+
+.home-footer-links span {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
 .home-footer .icon {
+  width: 13px;
+  height: 13px;
+}
+
+.home-credit {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.78rem;
+}
+
+.home-credit a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.home-credit a:hover {
+  text-decoration: underline;
+}
+
+.home-credit a .icon {
   width: 13px;
   height: 13px;
 }

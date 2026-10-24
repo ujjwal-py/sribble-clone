@@ -18,7 +18,7 @@ app.get('/health', (_request, response) => {
 });
 
 app.get('/', (_request, response) => {
-  response.type('text').send('Scribble server is running.');
+  response.type('text').send('DoodleDash server is running.');
 });
 
 const httpServer = createServer(app);
@@ -33,6 +33,6 @@ const io = new Server(httpServer, {
 registerSocketHandlers(io);
 
 httpServer.listen(PORT, () => {
-  console.log(`Scribble server listening on http://localhost:${PORT}`);
+  console.log(`DoodleDash server listening on http://localhost:${PORT}`);
   console.log(`Allowed client origins: ${clientOrigins.join(', ')}`);
 });

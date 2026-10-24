@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  ArrowUpRight,
   DoorOpen,
   Globe,
   Link2,
@@ -219,8 +220,8 @@ export default function HomePage() {
         <header className="hero">
           <div className="hero-top">
             <div className="mini-brand">
-              <span className="brand-mark">S</span>
-              <span>Scribble</span>
+              <span className="brand-mark">D</span>
+              <span>DoodleDash</span>
             </div>
             <ThemeToggle />
           </div>
@@ -493,17 +494,30 @@ export default function HomePage() {
         </div>
 
         <footer className="home-footer">
-          <span>
-            <ShieldCheck className="icon" aria-hidden="true" /> Server-authoritative scoring
-          </span>
-          <span>·</span>
-          <span>
-            <Pencil className="icon" aria-hidden="true" /> Live drawing sync
-          </span>
-          <span>·</span>
-          <span>
-            <DoorOpen className="icon" aria-hidden="true" /> Rooms disappear when everyone leaves
-          </span>
+          <div className="home-footer-links">
+            <span>
+              <ShieldCheck className="icon" aria-hidden="true" /> Server-authoritative scoring
+            </span>
+            <span>·</span>
+            <span>
+              <Pencil className="icon" aria-hidden="true" /> Live drawing sync
+            </span>
+            <span>·</span>
+            <span>
+              <DoorOpen className="icon" aria-hidden="true" /> Rooms disappear when everyone leaves
+            </span>
+          </div>
+          <p className="home-credit">
+            © {new Date().getFullYear()} DoodleDash · Built by{' '}
+            <a
+              href="https://github.com/ujjwal-py/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ujjwal
+              <ArrowUpRight className="icon" aria-hidden="true" />
+            </a>
+          </p>
         </footer>
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
 
 interface CountdownProps {
   endsAt: number | null;
@@ -23,6 +24,7 @@ export default function Countdown({ endsAt, label }: CountdownProps) {
 
   return (
     <div className={`countdown ${warning ? 'countdown-warning' : ''}`} aria-live="polite">
+      <Clock className="icon countdown-icon" aria-hidden="true" />
       {label && <span className="countdown-label">{label}</span>}
       <span className="countdown-value">{seconds}</span>
       <span className="countdown-unit">s</span>

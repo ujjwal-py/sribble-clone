@@ -1,3 +1,4 @@
+import { LoaderCircle, Sparkles } from 'lucide-react';
 import Countdown from './Countdown';
 
 interface WordChoiceProps {
@@ -10,7 +11,9 @@ export default function WordChoice({ options, endsAt, onChoose }: WordChoiceProp
   return (
     <div className="canvas-overlay">
       <div className="overlay-card word-choice-card">
-        <p className="eyebrow">You are drawing</p>
+        <p className="eyebrow">
+          <Sparkles className="icon" aria-hidden="true" /> You are drawing
+        </p>
         <h2>Choose a word</h2>
         <p className="muted">Pick one before the timer runs out.</p>
 
@@ -28,7 +31,10 @@ export default function WordChoice({ options, endsAt, onChoose }: WordChoiceProp
             ))}
           </div>
         ) : (
-          <p className="muted">Preparing words...</p>
+          <p className="muted preparing-note">
+            <LoaderCircle className="icon spin" aria-hidden="true" />
+            Preparing words...
+          </p>
         )}
 
         <Countdown endsAt={endsAt} label="Auto-pick in" />

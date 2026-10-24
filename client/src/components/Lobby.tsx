@@ -1,4 +1,17 @@
 import { useState } from 'react';
+import {
+  Check,
+  Copy,
+  DoorOpen,
+  Hash,
+  Link2,
+  LoaderCircle,
+  Play,
+  Sparkles,
+  Timer,
+  Trophy,
+  Users,
+} from 'lucide-react';
 import type { RoomState } from '../types';
 import PlayersPanel from './PlayersPanel';
 import ThemeToggle from './ThemeToggle';
@@ -35,7 +48,7 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
         <div className="topbar-actions">
           <ThemeToggle />
           <button type="button" className="btn btn-ghost" onClick={onLeave}>
-            Leave room
+            <DoorOpen className="icon" aria-hidden="true" /> Leave room
           </button>
         </div>
       </header>
@@ -43,7 +56,9 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
       <main className="lobby-grid">
         <section className="card lobby-card">
           <div>
-            <p className="eyebrow">Room code</p>
+            <p className="eyebrow">
+              <Hash className="icon" aria-hidden="true" /> Room code
+            </p>
             <div className="room-code">{room.code}</div>
           </div>
 
@@ -56,17 +71,34 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
           </div>
 
           <div className="invite-box">
+            <Link2 className="icon invite-icon" aria-hidden="true" />
             <input value={inviteUrl} readOnly aria-label="Invite link" />
             <button type="button" className="btn btn-secondary" onClick={copyInvite}>
-              {copied ? 'Copied!' : 'Copy link'}
+              {copied ? (
+                <>
+                  <Check className="icon" aria-hidden="true" /> Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="icon" aria-hidden="true" /> Copy link
+                </>
+              )}
             </button>
           </div>
 
           <div className="settings-chips">
-            <span>{room.settings.rounds} rounds</span>
-            <span>{room.settings.drawTime}s per turn</span>
-            <span>{room.settings.wordCount} word choices</span>
-            <span>max {room.settings.maxPlayers} players</span>
+            <span>
+              <Trophy className="icon" aria-hidden="true" /> {room.settings.rounds} rounds
+            </span>
+            <span>
+              <Timer className="icon" aria-hidden="true" /> {room.settings.drawTime}s per turn
+            </span>
+            <span>
+              <Sparkles className="icon" aria-hidden="true" /> {room.settings.wordCount} word choices
+            </span>
+            <span>
+              <Users className="icon" aria-hidden="true" /> max {room.settings.maxPlayers} players
+            </span>
           </div>
 
           {isHost ? (
@@ -77,7 +109,7 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
                 onClick={onStart}
                 disabled={room.players.length < 2}
               >
-                Start game
+                <Play className="icon" aria-hidden="true" /> Start game
               </button>
               {room.players.length < 2 && (
                 <p className="muted small">At least 2 players are needed to start.</p>
@@ -85,6 +117,7 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
             </div>
           ) : (
             <p className="waiting-note">
+              <LoaderCircle className="icon spin" aria-hidden="true" />
               Waiting for the host to start the game
               <span className="waiting-dots">...</span>
             </p>

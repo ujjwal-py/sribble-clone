@@ -1,3 +1,4 @@
+import { Brush, Eraser, PaintBucket, Trash2, Undo2 } from 'lucide-react';
 import type { DrawTool } from '../types';
 
 interface DrawingToolbarProps {
@@ -22,10 +23,10 @@ const COLORS = [
   '#a855f7',
 ];
 
-const TOOLS: { label: string; value: DrawTool }[] = [
-  { label: 'Brush', value: 'brush' },
-  { label: 'Eraser', value: 'eraser' },
-  { label: 'Fill', value: 'fill' },
+const TOOLS: { label: string; value: DrawTool; icon: typeof Brush }[] = [
+  { label: 'Brush', value: 'brush', icon: Brush },
+  { label: 'Eraser', value: 'eraser', icon: Eraser },
+  { label: 'Fill', value: 'fill', icon: PaintBucket },
 ];
 
 const SIZES = [
@@ -49,17 +50,21 @@ export default function DrawingToolbar({
   return (
     <div className="toolbar">
       <div className="toolbar-group" aria-label="Drawing tool">
-        {TOOLS.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={`tool-button ${tool === option.value ? 'tool-button-active' : ''}`}
-            onClick={() => onToolChange(option.value)}
-            aria-pressed={tool === option.value}
-          >
-            {option.label}
-          </button>
-        ))}
+        {TOOLS.map((option) => {
+          const ToolIcon = option.icon;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`tool-button ${tool === option.value ? 'tool-button-active' : ''}`}
+              onClick={() => onToolChange(option.value)}
+              aria-pressed={tool === option.value}
+            >
+              <ToolIcon className="icon" aria-hidden="true" />
+              {option.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="toolbar-group" aria-label="Drawing color">
@@ -94,7 +99,7 @@ export default function DrawingToolbar({
 
       <div className="toolbar-group toolbar-actions">
         <button type="button" className="tool-button" onClick={onUndo}>
-          Undo
+          <Undo2 className="icon" aria-hidden="true" /> Undo
         </button>
         <button
           type="button"
@@ -103,7 +108,7 @@ export default function DrawingToolbar({
             if (window.confirm('Clear the canvas for everyone?')) onClear();
           }}
         >
-          Clear
+          <Trash2 className="icon" aria-hidden="true" /> Clear
         </button>
       </div>
     </div>

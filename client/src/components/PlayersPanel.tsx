@@ -1,3 +1,4 @@
+import { Check, Crown, Pencil, Trophy, Users } from 'lucide-react';
 import type { RoomState } from '../types';
 
 interface PlayersPanelProps {
@@ -14,7 +15,14 @@ export default function PlayersPanel({ room, playerId }: PlayersPanelProps) {
   return (
     <section className="panel players-panel">
       <div className="panel-heading">
-        <h2>{room.phase === 'lobby' ? 'Players' : 'Scoreboard'}</h2>
+        <h2>
+          {room.phase === 'lobby' ? (
+            <Users className="icon" aria-hidden="true" />
+          ) : (
+            <Trophy className="icon" aria-hidden="true" />
+          )}
+          {room.phase === 'lobby' ? 'Players' : 'Scoreboard'}
+        </h2>
         <span className="muted">
           {room.players.length}/{room.settings.maxPlayers}
         </span>
@@ -31,9 +39,15 @@ export default function PlayersPanel({ room, playerId }: PlayersPanelProps) {
                 {player.id === playerId && <span className="you-label">you</span>}
               </span>
               <span className="player-badges">
-                {player.id === room.hostId && <span className="badge badge-host">Host</span>}
+                {player.id === room.hostId && (
+                  <span className="badge badge-host">
+                    <Crown className="icon" aria-hidden="true" /> Host
+                  </span>
+                )}
                 {player.id === room.drawerId && room.phase !== 'lobby' && (
-                  <span className="badge badge-drawer">Drawing</span>
+                  <span className="badge badge-drawer">
+                    <Pencil className="icon" aria-hidden="true" /> Drawing
+                  </span>
                 )}
               </span>
             </div>
@@ -41,12 +55,14 @@ export default function PlayersPanel({ room, playerId }: PlayersPanelProps) {
             {room.phase !== 'lobby' ? (
               <span className="player-score">{player.score}</span>
             ) : (
-              <span className="badge badge-ready">Ready</span>
+              <span className="badge badge-ready">
+                <Check className="icon" aria-hidden="true" /> Ready
+              </span>
             )}
 
             {room.phase === 'drawing' && player.hasGuessed && player.id !== room.drawerId && (
               <span className="guessed-mark" title="Guessed correctly">
-                ✓
+                <Check className="icon" aria-hidden="true" />
               </span>
             )}
           </li>

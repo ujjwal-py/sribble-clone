@@ -1,5 +1,18 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  DoorOpen,
+  Link2,
+  LoaderCircle,
+  LogIn,
+  Pencil,
+  Plus,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  Users,
+  WifiOff,
+} from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { socket } from '../socket';
 import type { JoinResponse, RoomSettings } from '../types';
@@ -142,17 +155,29 @@ export default function HomePage() {
             link, and take turns sketching the secret word.
           </p>
           <div className="hero-meta">
-            <span>2–20 players</span>
-            <span>2–10 rounds</span>
-            <span>No account needed</span>
+            <span>
+              <Users className="icon" aria-hidden="true" /> 2–20 players
+            </span>
+            <span>
+              <Trophy className="icon" aria-hidden="true" /> 2–10 rounds
+            </span>
+            <span>
+              <Sparkles className="icon" aria-hidden="true" /> No account needed
+            </span>
           </div>
-          {!online && <p className="connection-note">Connecting to the game server...</p>}
+          {!online && (
+            <p className="connection-note">
+              <WifiOff className="icon" aria-hidden="true" /> Connecting to the game server...
+            </p>
+          )}
         </header>
 
         <div className="home-grid">
           <section className="card home-card">
             <div className="card-heading">
-              <p className="eyebrow">Host a game</p>
+              <p className="eyebrow">
+                <Plus className="icon" aria-hidden="true" /> Host a game
+              </p>
               <h2>Create a room</h2>
             </div>
 
@@ -203,14 +228,24 @@ export default function HomePage() {
                 className="btn btn-primary btn-large"
                 disabled={busy !== null || !online}
               >
-                {busy === 'create' ? 'Creating...' : 'Create room'}
+                {busy === 'create' ? (
+                  <>
+                    <LoaderCircle className="icon spin" aria-hidden="true" /> Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="icon" aria-hidden="true" /> Create room
+                  </>
+                )}
               </button>
             </form>
           </section>
 
           <section className="card home-card join-card">
             <div className="card-heading">
-              <p className="eyebrow">Have a code?</p>
+              <p className="eyebrow">
+                <Link2 className="icon" aria-hidden="true" /> Have a code?
+              </p>
               <h2>Join a room</h2>
             </div>
 
@@ -246,7 +281,15 @@ export default function HomePage() {
                 className="btn btn-secondary btn-large"
                 disabled={busy !== null || !online}
               >
-                {busy === 'join' ? 'Joining...' : 'Join room'}
+                {busy === 'join' ? (
+                  <>
+                    <LoaderCircle className="icon spin" aria-hidden="true" /> Joining...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="icon" aria-hidden="true" /> Join room
+                  </>
+                )}
               </button>
             </form>
 
@@ -261,11 +304,17 @@ export default function HomePage() {
         </div>
 
         <footer className="home-footer">
-          <span>Server-authoritative scoring</span>
+          <span>
+            <ShieldCheck className="icon" aria-hidden="true" /> Server-authoritative scoring
+          </span>
           <span>·</span>
-          <span>Live drawing sync</span>
+          <span>
+            <Pencil className="icon" aria-hidden="true" /> Live drawing sync
+          </span>
           <span>·</span>
-          <span>Rooms disappear when everyone leaves</span>
+          <span>
+            <DoorOpen className="icon" aria-hidden="true" /> Rooms disappear when everyone leaves
+          </span>
         </footer>
       </main>
     </div>

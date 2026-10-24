@@ -1,3 +1,4 @@
+import { Crown, DoorOpen, LoaderCircle, RotateCcw, Trophy } from 'lucide-react';
 import type { GameOverPayload } from '../types';
 
 interface GameOverScreenProps {
@@ -29,7 +30,9 @@ export default function GameOverScreen({
   return (
     <div className="modal-backdrop">
       <div className="modal-card game-over-card">
-        <p className="eyebrow">Final standings</p>
+        <p className="eyebrow">
+          <Trophy className="icon" aria-hidden="true" /> Final standings
+        </p>
         <h1>{title}</h1>
         {winners.length > 1 && (
           <p className="muted">{winners.map((player) => player.name).join(' & ')}</p>
@@ -43,6 +46,9 @@ export default function GameOverScreen({
             >
               <span className="final-rank">{index + 1}</span>
               <span className="final-name">
+                {player.score === topScore && topScore > 0 && (
+                  <Crown className="icon final-crown" aria-hidden="true" />
+                )}
                 {player.name}
                 {player.id === playerId && <span className="you-label">you</span>}
               </span>
@@ -54,13 +60,16 @@ export default function GameOverScreen({
         <div className="modal-actions">
           {isHost ? (
             <button type="button" className="btn btn-primary btn-large" onClick={onPlayAgain}>
-              Back to lobby
+              <RotateCcw className="icon" aria-hidden="true" /> Back to lobby
             </button>
           ) : (
-            <p className="waiting-note">Waiting for the host to restart</p>
+            <p className="waiting-note">
+              <LoaderCircle className="icon spin" aria-hidden="true" />
+              Waiting for the host to restart
+            </p>
           )}
           <button type="button" className="btn btn-ghost" onClick={onLeave}>
-            Leave room
+            <DoorOpen className="icon" aria-hidden="true" /> Leave room
           </button>
         </div>
         <p className="muted small">The lobby keeps the same settings and resets scores.</p>

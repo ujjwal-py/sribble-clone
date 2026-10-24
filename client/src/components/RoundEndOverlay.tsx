@@ -1,3 +1,4 @@
+import { DoorOpen, Timer, Trophy, type LucideIcon } from 'lucide-react';
 import type { RoundEndPayload } from '../types';
 import Countdown from './Countdown';
 
@@ -12,12 +13,25 @@ const REASON_TEXT: Record<RoundEndPayload['reason'], string> = {
   drawer_left: 'The drawer left, so this turn ended.',
 };
 
+const REASON_ICON: Record<RoundEndPayload['reason'], LucideIcon> = {
+  time_up: Timer,
+  all_guessed: Trophy,
+  drawer_left: DoorOpen,
+};
+
 export default function RoundEndOverlay({ result, round }: RoundEndOverlayProps) {
+  const ReasonIcon = REASON_ICON[result.reason];
+
   return (
     <div className="canvas-overlay">
       <div className="overlay-card round-end-card">
-        <p className="eyebrow">Round {round} complete</p>
-        <p className="round-reason">{REASON_TEXT[result.reason]}</p>
+        <p className="eyebrow">
+          <Trophy className="icon" aria-hidden="true" /> Round {round} complete
+        </p>
+        <p className="round-reason">
+          <ReasonIcon className="icon" aria-hidden="true" />
+          {REASON_TEXT[result.reason]}
+        </p>
 
         <h2 className="revealed-word">
           {result.word ? result.word : 'No word chosen'}

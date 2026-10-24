@@ -1,4 +1,13 @@
 import { useState, type RefObject } from 'react';
+import {
+  Check,
+  DoorOpen,
+  Eye,
+  LoaderCircle,
+  Pencil,
+  Target,
+  Trophy,
+} from 'lucide-react';
 import type {
   ChatMessage,
   DrawTool,
@@ -73,10 +82,20 @@ export default function GameView({
 
         <div className="topbar-center">
           <span>
-            Round {Math.max(1, room.round)}/{room.settings.rounds}
+            <Trophy className="icon" aria-hidden="true" /> Round {Math.max(1, room.round)}/
+            {room.settings.rounds}
           </span>
           <span className="topbar-divider" />
           <span>
+            {room.phase === 'choosing' ? (
+              <LoaderCircle className="icon spin" aria-hidden="true" />
+            ) : room.phase === 'drawing' ? (
+              <Pencil className="icon" aria-hidden="true" />
+            ) : room.phase === 'roundEnd' ? (
+              <Check className="icon" aria-hidden="true" />
+            ) : (
+              <Trophy className="icon" aria-hidden="true" />
+            )}
             {room.phase === 'choosing'
               ? `${drawer?.name ?? 'Someone'} is choosing`
               : room.phase === 'drawing'
@@ -91,7 +110,7 @@ export default function GameView({
           {topbarEnd && <Countdown endsAt={topbarEnd} label="Time" />}
           <ThemeToggle />
           <button type="button" className="btn btn-ghost" onClick={onLeave}>
-            Leave
+            <DoorOpen className="icon" aria-hidden="true" /> Leave
           </button>
         </div>
       </header>
@@ -101,29 +120,42 @@ export default function GameView({
           <div className="word-banner">
             {room.phase === 'drawing' && isDrawer && (
               <>
-                <span className="word-label">Draw this</span>
+                <span className="word-label">
+                  <Pencil className="icon" aria-hidden="true" /> Draw this
+                </span>
                 <strong className="word-value">{room.word}</strong>
               </>
             )}
 
             {room.phase === 'drawing' && !isDrawer && (
               <>
-                <span className="word-label">Guess the word</span>
+                <span className="word-label">
+                  <Eye className="icon" aria-hidden="true" /> Guess the word
+                </span>
                 <strong className="word-mask">{room.maskedWord}</strong>
                 <span className="muted small">{room.wordLength} letters</span>
               </>
             )}
 
             {room.phase === 'choosing' && (
-              <span className="word-label">The word is hidden while it is being chosen.</span>
+              <span className="word-label">
+                <LoaderCircle className="icon spin" aria-hidden="true" />
+                The word is hidden while it is being chosen.
+              </span>
             )}
 
             {room.phase === 'roundEnd' && (
-              <span className="word-label">Round complete — the word is revealed below.</span>
+              <span className="word-label">
+                <Trophy className="icon" aria-hidden="true" />
+                Round complete — the word is revealed below.
+              </span>
             )}
 
             {room.phase === 'gameOver' && (
-              <span className="word-label">Final scores are in.</span>
+              <span className="word-label">
+                <Trophy className="icon" aria-hidden="true" />
+                Final scores are in.
+              </span>
             )}
           </div>
 
@@ -194,7 +226,9 @@ export default function GameView({
         <aside className="game-sidebar">
           <PlayersPanel room={room} playerId={playerId} />
           <div className="panel tip-panel">
-            <h2>How to score</h2>
+            <h2>
+              <Target className="icon" aria-hidden="true" /> How to score
+            </h2>
             <p className="muted small">
               Guess correctly to earn up to 200 points. The faster you guess, the more
               you get. The drawer earns 50 points for each person who guesses.

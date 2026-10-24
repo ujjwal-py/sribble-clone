@@ -30,14 +30,18 @@
   --warning: #b54708;
   --host-soft: #fef0c7;
   --host-ink: #93370d;
-  --radius: 18px;
+  --gold: #d97706;
+  --font-display: 'Fredoka Variable', 'Fredoka', 'Nunito Variable', 'Segoe UI', sans-serif;
+  --font-body:
+    'Nunito Variable', 'Nunito', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  --radius: 20px;
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
   --shadow-md: 0 12px 30px rgba(16, 24, 40, 0.1);
   --shadow-lg: 0 24px 60px rgba(16, 24, 40, 0.18);
   color-scheme: light;
   color: var(--ink);
-  font-family:
-    'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -74,6 +78,7 @@
   --warning: #fbbf24;
   --host-soft: #3a2a12;
   --host-ink: #fbbf24;
+  --gold: #fbbf24;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.38);
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.52);
@@ -98,6 +103,8 @@ body {
     radial-gradient(circle at 100% 15%, rgba(168, 85, 247, 0.1), transparent 28rem),
     var(--bg);
   color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 500;
 }
 
 :root[data-theme='dark'] body {
@@ -109,19 +116,38 @@ body {
 
 h1,
 h2,
+h3,
 p {
   margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 h1 {
   font-size: clamp(1.8rem, 3.2vw, 2.55rem);
   line-height: 1.08;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
 }
 
 h2 {
   font-size: 1.1rem;
-  letter-spacing: -0.015em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex: 0 0 auto;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
 }
 
 button,
@@ -157,10 +183,14 @@ button:disabled {
 }
 
 .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--primary);
+  font-family: var(--font-display);
   font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 
@@ -179,9 +209,11 @@ button:disabled {
   min-height: 42px;
   padding: 0 18px;
   border: 1px solid transparent;
-  border-radius: 11px;
-  font-weight: 700;
-  font-size: 0.92rem;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.94rem;
+  letter-spacing: 0.01em;
   transition:
     transform 120ms ease,
     background 120ms ease,
@@ -230,7 +262,7 @@ button:disabled {
 .btn-large {
   min-height: 50px;
   width: 100%;
-  font-size: 0.98rem;
+  font-size: 1.02rem;
 }
 
 .btn-small {
@@ -274,8 +306,8 @@ button:disabled {
 }
 
 .code-input {
-  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
-  font-weight: 800 !important;
+  font-family: var(--font-display);
+  font-weight: 600 !important;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -295,6 +327,9 @@ button:disabled {
 }
 
 .connection-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   color: var(--warning);
   font-size: 0.85rem;
   font-weight: 600;
@@ -356,21 +391,25 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .brand-mark {
   display: inline-grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   background: linear-gradient(135deg, var(--primary), #8b5cf6);
   color: var(--on-primary);
-  font-size: 0.92rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
   box-shadow: 0 6px 14px rgba(79, 70, 229, 0.25);
+  transform: rotate(-4deg);
 }
 
 .hero h1 {
@@ -393,13 +432,22 @@ button:disabled {
 }
 
 .hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 6px 11px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface-card-soft);
   color: var(--muted);
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.hero-meta .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
 }
 
 .home-grid {
@@ -452,11 +500,22 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 8px 10px;
   padding-top: 24px;
   color: var(--subtle);
   font-size: 0.76rem;
   font-weight: 600;
+}
+
+.home-footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.home-footer .icon {
+  width: 13px;
+  height: 13px;
 }
 
 /* ---------- Generic page / panels ---------- */
@@ -499,7 +558,16 @@ button:disabled {
 }
 
 .panel-heading h2 {
-  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.95rem;
+}
+
+.panel-heading h2 .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
 }
 
 .panel-note {
@@ -548,19 +616,27 @@ button:disabled {
 .room-code {
   margin-top: 2px;
   color: var(--primary);
-  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
+  font-family: var(--font-display);
   font-size: clamp(2.1rem, 6vw, 3.2rem);
-  font-weight: 900;
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
 }
 
 .invite-box {
   display: flex;
+  align-items: center;
   gap: 8px;
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface-soft);
+}
+
+.invite-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  color: var(--subtle);
 }
 
 .invite-box input {
@@ -581,13 +657,22 @@ button:disabled {
 }
 
 .settings-chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 7px 10px;
   border-radius: 8px;
   background: var(--surface-soft);
   border: 1px solid var(--line);
   color: var(--ink-soft);
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.settings-chips .icon {
+  width: 13px;
+  height: 13px;
+  color: var(--primary);
 }
 
 .lobby-start {
@@ -596,6 +681,9 @@ button:disabled {
 }
 
 .waiting-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--muted);
   font-size: 0.88rem;
   font-weight: 600;
@@ -667,8 +755,9 @@ button:disabled {
   border-radius: 999px;
   background: var(--primary-soft);
   color: var(--primary);
+  font-family: var(--font-display);
   font-size: 0.58rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   vertical-align: middle;
@@ -682,12 +771,19 @@ button:disabled {
 .badge {
   display: inline-flex;
   align-items: center;
+  gap: 3px;
   padding: 2px 6px;
   border-radius: 999px;
+  font-family: var(--font-display);
   font-size: 0.58rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+}
+
+.badge .icon {
+  width: 10px;
+  height: 10px;
 }
 
 .badge-host {
@@ -708,8 +804,9 @@ button:disabled {
 .player-score {
   min-width: 34px;
   color: var(--ink);
-  font-size: 0.94rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
   text-align: right;
 }
 
@@ -721,8 +818,11 @@ button:disabled {
   border-radius: 50%;
   background: var(--success-soft);
   color: var(--success);
-  font-size: 0.7rem;
-  font-weight: 900;
+}
+
+.guessed-mark .icon {
+  width: 12px;
+  height: 12px;
 }
 
 /* ---------- Game ---------- */
@@ -781,6 +881,18 @@ button:disabled {
   text-overflow: ellipsis;
 }
 
+.topbar-center > span:not(.topbar-divider) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topbar-center .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--primary);
+}
+
 .topbar-divider {
   width: 1px;
   height: 18px;
@@ -797,16 +909,16 @@ button:disabled {
   border-radius: 8px;
   background: var(--surface-soft);
   color: var(--ink-soft);
-  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
 }
 
 .countdown {
   display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
+  align-items: center;
+  gap: 5px;
   min-width: 86px;
   padding: 7px 11px;
   border: 1px solid var(--line);
@@ -816,18 +928,26 @@ button:disabled {
   font-variant-numeric: tabular-nums;
 }
 
+.countdown-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--muted);
+}
+
 .countdown-label {
   margin-right: 2px;
   color: var(--muted);
+  font-family: var(--font-display);
   font-size: 0.62rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .countdown-value {
-  font-size: 1.05rem;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 600;
 }
 
 .countdown-unit {
@@ -843,7 +963,8 @@ button:disabled {
 }
 
 .countdown-warning .countdown-label,
-.countdown-warning .countdown-unit {
+.countdown-warning .countdown-unit,
+.countdown-warning .countdown-icon {
   color: var(--danger);
 }
 
@@ -866,7 +987,7 @@ button:disabled {
 
 .word-banner {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
   gap: 12px;
   min-height: 44px;
@@ -879,26 +1000,37 @@ button:disabled {
 }
 
 .word-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--muted);
+  font-family: var(--font-display);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
+.word-label .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+}
+
 .word-value {
   color: var(--primary);
-  font-size: 1.15rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .word-mask {
   color: var(--ink);
-  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
   letter-spacing: 0.16em;
 }
 
@@ -990,14 +1122,23 @@ button:disabled {
 }
 
 .tool-button {
-  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
   padding: 0 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
   color: var(--ink-soft);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.tool-button .icon {
+  width: 14px;
+  height: 14px;
 }
 
 .tool-button:disabled {
@@ -1117,6 +1258,9 @@ button:disabled {
 }
 
 .guess-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 8px 10px;
   border-radius: 8px;
   background: var(--surface-soft);
@@ -1125,11 +1269,29 @@ button:disabled {
   font-weight: 600;
 }
 
+.guess-status .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.guess-empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .guess-note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   margin-top: 6px;
   color: var(--muted);
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.guess-note-positive {
+  color: var(--success);
 }
 
 /* ---------- Overlays ---------- */
@@ -1182,8 +1344,9 @@ button:disabled {
   border-radius: 11px;
   background: var(--primary-soft);
   color: var(--primary-strong);
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
   text-transform: capitalize;
   transition:
     background 120ms ease,
@@ -1193,6 +1356,12 @@ button:disabled {
 .word-option:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
+}
+
+.preparing-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .choosing-card {
@@ -1223,16 +1392,25 @@ button:disabled {
 }
 
 .round-reason {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--success);
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 600;
+}
+
+.round-reason .icon {
+  width: 15px;
+  height: 15px;
 }
 
 .revealed-word {
   margin: 4px 0 0;
   color: var(--primary);
-  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
+  font-family: var(--font-display);
   font-size: clamp(1.6rem, 5vw, 2.3rem);
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -1260,6 +1438,11 @@ button:disabled {
 
 .delta-positive {
   color: var(--success);
+}
+
+.delta-list strong {
+  font-family: var(--font-display);
+  font-weight: 600;
 }
 
 .delta-zero {
@@ -1325,21 +1508,32 @@ button:disabled {
 .final-rank {
   width: 22px;
   color: var(--subtle);
-  font-size: 0.8rem;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
   text-align: center;
 }
 
 .final-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex: 1;
   text-align: left;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.final-crown {
+  width: 14px;
+  height: 14px;
+  color: var(--gold);
 }
 
 .final-score {
-  font-size: 0.96rem;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .modal-actions {
@@ -1371,6 +1565,9 @@ button:disabled {
 
 .connection-banner span {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 /* ---------- Responsive ---------- */

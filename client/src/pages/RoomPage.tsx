@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Hash,
+  House,
+  LoaderCircle,
+  LogIn,
+  WifiOff,
+} from 'lucide-react';
 import type { CanvasHandle } from '../components/CanvasBoard';
 import GameView from '../components/GameView';
 import Lobby from '../components/Lobby';
@@ -276,7 +284,9 @@ export default function RoomPage() {
       <div className="center-page">
         <form className="card join-room-card" onSubmit={handleJoin}>
           <div className="join-room-top">
-            <p className="eyebrow">Room {expectedCode || 'unknown'}</p>
+            <p className="eyebrow">
+              <Hash className="icon" aria-hidden="true" /> Room {expectedCode || 'unknown'}
+            </p>
             <ThemeToggle />
           </div>
           <h1>Join the game</h1>
@@ -296,7 +306,9 @@ export default function RoomPage() {
 
           {joinError && <p className="form-error">{joinError}</p>}
           {!online && (
-            <p className="connection-note">Connecting to the game server...</p>
+            <p className="connection-note">
+              <WifiOff className="icon" aria-hidden="true" /> Connecting to the game server...
+            </p>
           )}
 
           <button
@@ -304,14 +316,22 @@ export default function RoomPage() {
             className="btn btn-primary btn-large"
             disabled={joining || !online || !expectedCode}
           >
-            {joining ? 'Joining...' : 'Join room'}
+            {joining ? (
+              <>
+                <LoaderCircle className="icon spin" aria-hidden="true" /> Joining...
+              </>
+            ) : (
+              <>
+                <LogIn className="icon" aria-hidden="true" /> Join room
+              </>
+            )}
           </button>
           <button
             type="button"
             className="btn btn-ghost"
             onClick={() => navigate('/')}
           >
-            Back to home
+            <ArrowLeft className="icon" aria-hidden="true" /> Back to home
           </button>
         </form>
       </div>
@@ -322,9 +342,12 @@ export default function RoomPage() {
     <>
       {disconnected && (
         <div className="connection-banner">
-          <span>Connection lost. This seat was closed on the server.</span>
+          <span>
+            <WifiOff className="icon" aria-hidden="true" />
+            Connection lost. This seat was closed on the server.
+          </span>
           <button type="button" className="btn btn-small" onClick={() => navigate('/')}>
-            Return home
+            <House className="icon" aria-hidden="true" /> Return home
           </button>
         </div>
       )}

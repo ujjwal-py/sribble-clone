@@ -14,6 +14,7 @@ Built for an internship assignment with a deliberately small, readable codebase.
 - Live canvas sync with normalized coordinates
 - Brush, eraser, and paint-bucket fill tools, with thin/thick sizes, undo, and clear
 - Persistent light/dark theme toggle on the home, join, lobby, and game screens
+- Playful rounded interface with Lucide icons and self-hosted Fredoka/Nunito fonts
 - Server-checked guesses with strict trim + case-insensitive matching
 - Time-based scoring, live scoreboard, round reveal, and game-over standings
 - Host can return everyone to the lobby to replay with the same settings
@@ -27,6 +28,7 @@ Rooms are stored in server memory. There is no database.
 | --- | --- |
 | Client | React, TypeScript, Vite, HTML5 Canvas |
 | Server | Node.js, Express, TypeScript, Socket.IO |
+| UI | Lucide icons, Fontsource (Fredoka + Nunito) |
 | Words | Hardcoded `server/src/data/words.json` (100 words) |
 | Transport | Socket.IO events + acknowledgements |
 

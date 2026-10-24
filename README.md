@@ -226,10 +226,3 @@ These match the build order and are easy to repeat manually.
 5. Leave one player alone mid-game; the game should end and show standings.
 6. Close all tabs; the server should remove the room and clear its timers.
 
-## Limitations
-
-- **No identity-based reconnect.** Disconnecting removes the player, matching the assignment's leave rules. Refreshing mid-game loses the seat; the player can only rejoin once the room is back in the lobby. Stroke history is still included in room snapshots for future rejoin support.
-- Rooms are in memory; restarting the server deletes them.
-- No hints, categories, spectators, general chat, avatars, custom words, or replay.
-- The eraser paints white on the intentionally white drawing surface. The paint bucket is rasterized in each browser; the server records its order and authorizes the drawer, but does not rasterize pixels itself.
-- Countdowns are displayed from server-provided end timestamps; the server timers still decide when actions actually end.

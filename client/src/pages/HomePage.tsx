@@ -2,8 +2,10 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DoorOpen,
+  Globe,
   Link2,
   LoaderCircle,
+  Lock,
   LogIn,
   Pencil,
   Plus,
@@ -16,8 +18,14 @@ import {
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { socket } from '../socket';
-import type { JoinResponse, RoomSettings, WordCategory } from '../types';
-import { ALL_WORD_CATEGORIES, WORD_CATEGORIES } from '../wordCategories';
+import type {
+  JoinResponse,
+  PublicRoomInfo,
+  RoomSettings,
+  RoomVisibility,
+  WordCategory,
+} from '../types';
+import { ALL_WORD_CATEGORIES, WORD_CATEGORIES, categorySummary } from '../wordCategories';
 
 const DEFAULT_SETTINGS: RoomSettings = {
   maxPlayers: 8,
@@ -25,6 +33,7 @@ const DEFAULT_SETTINGS: RoomSettings = {
   drawTime: 80,
   wordCount: 3,
   categories: [...ALL_WORD_CATEGORIES],
+  visibility: 'private',
 };
 
 interface SelectFieldProps {
@@ -65,26 +74,45 @@ export default function HomePage() {
   const [createError, setCreateError] = useState('');
   const [joinError, setJoinError] = useState('');
   const [online, setOnline] = useState(socket.connected);
+  const [publicRooms, setPublicRooms] = useState<PublicRoomInfo[] | null>(null);
 
   useEffect(() => {
     // Returning to the home page (including browser Back) leaves any old room.
     socket.emit('leave_room');
     setOnline(socket.connected);
 
-    const handleConnect = (): void => setOnline(true);
+    const handlePublicRooms = (payload: { rooms: PublicRoomInfo[] }): void => {
+      setPublicRooms(payload.rooms);
+    };
+
+    const handleConnect = (): void => {
+      setOnline(true);
+      // Re-subscribe after a reconnect so the browser keeps updating.
+      socket.emit('subscribe_public_rooms');
+    };
+
     const handleDisconnect = (): void => setOnline(false);
 
+    socket.on('public_rooms', handlePublicRooms);
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
 
+    if (socket.connected) socket.emit('subscribe_public_rooms');
+
     return () => {
+      socket.off('public_rooms', handlePublicRooms);
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
+      socket.emit('unsubscribe_public_rooms');
     };
   }, []);
 
   function updateSetting<K extends keyof RoomSettings>(key: K, value: number): void {
     setSettings((previous) => ({ ...previous, [key]: value }));
+  }
+
+  function setVisibility(visibility: RoomVisibility): void {
+    setSettings((previous) => ({ ...previous, visibility }));
   }
 
   function toggleCategory(category: WordCategory): void {
@@ -162,6 +190,29 @@ export default function HomePage() {
     });
   }
 
+  function joinPublicRoom(code: string): void {
+    const name = joinName.trim();
+    if (!name) {
+      setJoinError('Enter your name above to join a public room.');
+      return;
+    }
+
+    setBusy('join');
+    setJoinError('');
+
+    socket.emit('join_room', { code, name }, (response: JoinResponse) => {
+      setBusy(null);
+      if (!response.ok) {
+        setJoinError(response.error);
+        return;
+      }
+
+      navigate(`/room/${response.code}`, {
+        state: { playerId: response.playerId, room: response.state },
+      });
+    });
+  }
+
   return (
     <div className="home-page">
       <main className="home-inner">
@@ -216,6 +267,42 @@ export default function HomePage() {
                   autoComplete="nickname"
                 />
               </label>
+
+              <div className="field">
+                <span className="field-label">
+                  <Globe className="icon" aria-hidden="true" /> Room type
+                </span>
+                <div className="visibility-toggle" role="group" aria-label="Room type">
+                  <button
+                    type="button"
+                    className={
+                      settings.visibility === 'private'
+                        ? 'visibility-option is-selected'
+                        : 'visibility-option'
+                    }
+                    aria-pressed={settings.visibility === 'private'}
+                    onClick={() => setVisibility('private')}
+                  >
+                    <Lock className="icon" aria-hidden="true" />
+                    <strong>Private</strong>
+                    <span className="visibility-hint">Invite link or code only</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={
+                      settings.visibility === 'public'
+                        ? 'visibility-option is-selected'
+                        : 'visibility-option'
+                    }
+                    aria-pressed={settings.visibility === 'public'}
+                    onClick={() => setVisibility('public')}
+                  >
+                    <Globe className="icon" aria-hidden="true" />
+                    <strong>Public</strong>
+                    <span className="visibility-hint">Anyone can find and join</span>
+                  </button>
+                </div>
+              </div>
 
               <div className="settings-grid">
                 <SelectField
@@ -353,11 +440,54 @@ export default function HomePage() {
             </form>
 
             <div className="join-divider">
-              <span>Open a shared link?</span>
+              <span>Or join a public room</span>
             </div>
+
+            <div className="public-room-list">
+              {publicRooms === null && (
+                <p className="muted small public-room-note">
+                  <LoaderCircle className="icon spin" aria-hidden="true" /> Looking for open
+                  rooms...
+                </p>
+              )}
+
+              {publicRooms?.length === 0 && (
+                <p className="muted small public-room-note">
+                  <Globe className="icon" aria-hidden="true" /> No public rooms right now.
+                  Create one and set its type to public!
+                </p>
+              )}
+
+              {publicRooms?.map((room) => (
+                <article className="public-room" key={room.code}>
+                  <div className="public-room-main">
+                    <strong>{room.hostName}&apos;s room</strong>
+                    <span className="public-room-meta">
+                      <span>
+                        <Users className="icon" aria-hidden="true" /> {room.playerCount}/
+                        {room.maxPlayers}
+                      </span>
+                      <span>
+                        <Tags className="icon" aria-hidden="true" />{' '}
+                        {categorySummary(room.categories)}
+                      </span>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-small"
+                    onClick={() => joinPublicRoom(room.code)}
+                    disabled={busy !== null || !online}
+                  >
+                    <LogIn className="icon" aria-hidden="true" /> Join
+                  </button>
+                </article>
+              ))}
+            </div>
+
             <p className="muted small">
-              A friend&apos;s invite link takes you straight to the room, where you can
-              enter your name.
+              Your name above is used when you join. Have an invite link? Opening it takes
+              you straight to the room.
             </p>
           </section>
         </div>

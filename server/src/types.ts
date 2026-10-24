@@ -14,12 +14,30 @@ export const WORD_CATEGORY_IDS = [
 
 export type WordCategory = (typeof WORD_CATEGORY_IDS)[number];
 
+/**
+ * Public rooms are listed in the home-page browser, so anyone can join.
+ * Private rooms are only reachable with the code or invite link.
+ */
+export type RoomVisibility = 'private' | 'public';
+
 export interface RoomSettings {
   maxPlayers: number; // 2-20
   rounds: number; // 2-10
   drawTime: number; // seconds, 15-240
   wordCount: number; // word options shown to the drawer, 1-5
   categories: WordCategory[]; // word pools available for this room
+  visibility: RoomVisibility; // private = link only, public = listed for anyone
+}
+
+/** Trimmed room summary used by the public room browser. */
+export interface PublicRoomInfo {
+  code: string;
+  hostName: string;
+  playerCount: number;
+  maxPlayers: number;
+  rounds: number;
+  drawTime: number;
+  categories: WordCategory[];
 }
 
 export interface Point {

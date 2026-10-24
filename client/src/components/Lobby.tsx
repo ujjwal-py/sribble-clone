@@ -3,9 +3,11 @@ import {
   Check,
   Copy,
   DoorOpen,
+  Globe,
   Hash,
   Link2,
   LoaderCircle,
+  Lock,
   Play,
   Sparkles,
   Tags,
@@ -68,8 +70,9 @@ export default function Lobby({ room, playerId, onStart, onKick, onLeave }: Lobb
           <div>
             <h1>Waiting for players</h1>
             <p className="muted">
-              Send this link to friends. The host starts the game once at least two
-              players are here.
+              {room.settings.visibility === 'public'
+                ? 'This room is public, so anyone browsing the room list can join. Share the link with friends too. The host starts the game once at least two players are here.'
+                : 'Send this link to friends. The host starts the game once at least two players are here.'}
             </p>
           </div>
 
@@ -90,6 +93,14 @@ export default function Lobby({ room, playerId, onStart, onKick, onLeave }: Lobb
           </div>
 
           <div className="settings-chips">
+            <span>
+              {room.settings.visibility === 'public' ? (
+                <Globe className="icon" aria-hidden="true" />
+              ) : (
+                <Lock className="icon" aria-hidden="true" />
+              )}
+              {room.settings.visibility === 'public' ? 'Public room' : 'Private room'}
+            </span>
             <span>
               <Trophy className="icon" aria-hidden="true" /> {room.settings.rounds} rounds
             </span>

@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { RoomSettings, RoomState, Stroke } from '../types';
+import { PublicRoomInfo, RoomSettings, RoomState, Stroke } from '../types';
 import { Game } from './Game';
 import { Player } from './Player';
 
@@ -83,6 +83,19 @@ export class Room {
       players: this.players.map((player) => player.toInfo()),
       strokes: this.strokes,
       ...this.game.getPublicState(viewerId),
+    };
+  }
+
+  /** Compact summary for the public room browser; never includes strokes or words. */
+  toPublicInfo(): PublicRoomInfo {
+    return {
+      code: this.code,
+      hostName: this.players.find((player) => player.id === this.hostId)?.name ?? 'Host',
+      playerCount: this.players.length,
+      maxPlayers: this.settings.maxPlayers,
+      rounds: this.settings.rounds,
+      drawTime: this.settings.drawTime,
+      categories: [...this.settings.categories],
     };
   }
 

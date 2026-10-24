@@ -11,11 +11,25 @@ export type WordCategory =
   | 'objects'
   | 'fantasy';
 
+export type RoomVisibility = 'private' | 'public';
+
 export interface RoomSettings {
   maxPlayers: number;
   rounds: number;
   drawTime: number;
   wordCount: number;
+  categories: WordCategory[];
+  visibility: RoomVisibility;
+}
+
+/** Room summary shown in the public room browser. */
+export interface PublicRoomInfo {
+  code: string;
+  hostName: string;
+  playerCount: number;
+  maxPlayers: number;
+  rounds: number;
+  drawTime: number;
   categories: WordCategory[];
 }
 
@@ -134,6 +148,7 @@ export interface ServerToClientEvents {
   round_end: (payload: RoundEndPayload) => void;
   game_over: (payload: GameOverPayload) => void;
   kicked: (payload: { byName: string; reason: string }) => void;
+  public_rooms: (payload: { rooms: PublicRoomInfo[] }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -154,6 +169,8 @@ export interface ClientToServerEvents {
   canvas_clear: () => void;
   guess: (payload: { text: string }) => void;
   kick_player: (payload: { playerId: string }) => void;
+  subscribe_public_rooms: () => void;
+  unsubscribe_public_rooms: () => void;
   play_again: () => void;
   leave_room: () => void;
 }

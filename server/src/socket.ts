@@ -6,6 +6,7 @@ import {
   JoinAck,
   Point,
   RoomSettings,
+  RoomVisibility,
   WORD_CATEGORY_IDS,
   WordCategory,
 } from './types';
@@ -17,7 +18,18 @@ const DEFAULT_SETTINGS: RoomSettings = {
   drawTime: 80,
   wordCount: 3,
   categories: [...WORD_CATEGORY_IDS],
+  visibility: 'private',
 };
+
+/**
+ * Socket.IO room that holds every socket currently browsing the public room
+ * list. It is separate from game rooms, whose codes never contain a dash.
+ */
+const PUBLIC_LOBBY = 'public-lobby';
+
+function broadcastPublicRooms(io: Server): void {
+  io.to(PUBLIC_LOBBY).emit('public_rooms', { rooms: rooms.listPublic() });
+}
 
 function normalizeCategories(raw: unknown): WordCategory[] {
   if (!Array.isArray(raw)) return [...WORD_CATEGORY_IDS];
@@ -39,12 +51,15 @@ function clampInt(value: unknown, min: number, max: number, fallback: number): n
 
 function normalizeSettings(raw: unknown): RoomSettings {
   const input = (raw ?? {}) as Record<string, unknown>;
+  const visibility: RoomVisibility = input.visibility === 'public' ? 'public' : 'private';
+
   return {
     maxPlayers: clampInt(input.maxPlayers, 2, 20, DEFAULT_SETTINGS.maxPlayers),
     rounds: clampInt(input.rounds, 2, 10, DEFAULT_SETTINGS.rounds),
     drawTime: clampInt(input.drawTime, 15, 240, DEFAULT_SETTINGS.drawTime),
     wordCount: clampInt(input.wordCount, 1, 5, DEFAULT_SETTINGS.wordCount),
     categories: normalizeCategories(input.categories),
+    visibility,
   };
 }
 
@@ -85,7 +100,7 @@ function validTool(value: unknown): DrawTool {
   return value === 'eraser' || value === 'fill' ? value : 'brush';
 }
 
-function leaveRoom(socket: Socket): void {
+function leaveRoom(socket: Socket, io: Server): void {
   const room = currentRoom(socket);
   if (!room) {
     socket.data.roomCode = undefined;
@@ -102,6 +117,7 @@ function leaveRoom(socket: Socket): void {
 
   if (room.players.length === 0) {
     rooms.delete(room.code);
+    broadcastPublicRooms(io);
     return;
   }
 
@@ -111,6 +127,8 @@ function leaveRoom(socket: Socket): void {
     players: room.players.map((entry) => entry.toInfo()),
     hostId: room.hostId,
   });
+
+  broadcastPublicRooms(io);
 }
 
 export function registerSocketHandlers(io: Server): void {
@@ -144,6 +162,8 @@ export function registerSocketHandlers(io: Server): void {
         code: room.code,
         state: room.getState(player.id),
       });
+
+      broadcastPublicRooms(io);
     });
 
     socket.on('join_room', (payload: any, ack?: (response: JoinAck) => void) => {
@@ -200,6 +220,8 @@ export function registerSocketHandlers(io: Server): void {
         players: room.players.map((entry) => entry.toInfo()),
         hostId: room.hostId,
       });
+
+      broadcastPublicRooms(io);
     });
 
     socket.on('start_game', () => {
@@ -211,6 +233,8 @@ export function registerSocketHandlers(io: Server): void {
 
       console.log(`[room ${room.code}] game started by host`);
       room.game.startGame();
+      // A running room is no longer joinable, so drop it from the browser.
+      broadcastPublicRooms(io);
     });
 
     socket.on('kick_player', (payload: any) => {
@@ -243,6 +267,7 @@ export function registerSocketHandlers(io: Server): void {
 
       if (room.players.length === 0) {
         rooms.delete(room.code);
+        broadcastPublicRooms(io);
         return;
       }
 
@@ -252,6 +277,8 @@ export function registerSocketHandlers(io: Server): void {
         players: room.players.map((entry) => entry.toInfo()),
         hostId: room.hostId,
       });
+
+      broadcastPublicRooms(io);
     });
 
     socket.on('word_chosen', (payload: any) => {
@@ -343,15 +370,26 @@ export function registerSocketHandlers(io: Server): void {
       if (room.game.phase !== 'gameOver') return;
 
       room.game.resetToLobby();
+      // Back in the lobby, so a public room is joinable again.
+      broadcastPublicRooms(io);
+    });
+
+    socket.on('subscribe_public_rooms', () => {
+      socket.join(PUBLIC_LOBBY);
+      socket.emit('public_rooms', { rooms: rooms.listPublic() });
+    });
+
+    socket.on('unsubscribe_public_rooms', () => {
+      socket.leave(PUBLIC_LOBBY);
     });
 
     socket.on('leave_room', () => {
-      leaveRoom(socket);
+      leaveRoom(socket, io);
     });
 
     socket.on('disconnect', () => {
       console.log(`[socket] disconnected ${socket.id}`);
-      leaveRoom(socket);
+      leaveRoom(socket, io);
     });
   });
 }

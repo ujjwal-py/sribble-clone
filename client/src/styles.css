@@ -542,6 +542,63 @@ button:disabled {
   gap: 8px 12px;
 }
 
+.visibility-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.visibility-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 3px 7px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: left;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.visibility-option:hover {
+  border-color: var(--primary-border);
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+
+.visibility-option.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.08);
+}
+
+.visibility-option .icon {
+  width: 15px;
+  height: 15px;
+  color: currentColor;
+}
+
+.visibility-hint {
+  grid-column: 1 / -1;
+  color: var(--subtle);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.visibility-option.is-selected .visibility-hint {
+  color: var(--primary);
+}
+
 .join-card {
   background: var(--surface-card-soft);
 }
@@ -561,6 +618,74 @@ button:disabled {
   flex: 1;
   height: 1px;
   background: var(--line);
+}
+
+.public-room-list {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.public-room-note {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.public-room-note .icon {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  color: var(--primary);
+}
+
+.public-room {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.public-room-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.public-room-main strong {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.public-room-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 10px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.public-room-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.public-room-meta .icon {
+  width: 12px;
+  height: 12px;
+  color: var(--primary);
 }
 
 .home-footer {

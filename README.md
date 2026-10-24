@@ -7,7 +7,9 @@ Built for an internship assignment with a deliberately small, readable codebase.
 ## What is included
 
 - Create a room with name, max players (2–20), rounds (2–10), draw time (15–240s), word options (1–5), and word categories
-- Join by 6-character room code or shared `/room/:code` link
+- Pick a room type: **private** (invite link or code only) or **public** (listed for anyone to join)
+- Public room browser on the home page with host name, player count, and categories, updated live
+- Join by 6-character room code, shared `/room/:code` link, or the public room browser
 - Live lobby with host badge, invite link, host-only start button, and host kick controls
 - Join-order turns: every player draws once per round
 - Drawer gets word options and a 15-second auto-pick timer
@@ -124,11 +126,12 @@ npm run dev
 
 ### 3. Play
 
-1. Enter a name and click **Create room**.
+1. Enter a name, choose **Private** or **Public**, and click **Create room**.
 2. Copy the invite link or room code.
 3. Open the link in a second browser window/tab, enter a second name, and join. (For testing from another device, expose Vite with `--host` and update both `VITE_SERVER_URL` and `CLIENT_ORIGIN` to your LAN addresses.)
-4. The host clicks **Start game**.
-5. The drawer picks a word, draws, and everyone else types guesses.
+4. For a public room, other players can also find it in the **Join a room** card and join from there.
+5. The host clicks **Start game**.
+6. The drawer picks a word, draws, and everyone else types guesses.
 
 ## Environment variables
 
@@ -183,13 +186,15 @@ These match the build order and are easy to repeat manually.
 ### Step 1 — Theme, rooms, and lobby
 
 1. Toggle between **Dark** and **Light** mode. Reload the page and confirm your choice is remembered.
-2. Create a room with only one word category selected. Confirm the 6-character code, invite link, and category chip appear.
+2. Create a **Private** room with only one word category selected. Confirm the 6-character code, invite link, "Private room" chip, and category chip appear.
 3. Open the invite link in a second window, enter another name, and join.
-4. Confirm both windows update the player list and the host badge.
-5. Confirm **Start game** is host-only and disabled with one player.
-6. As host, click the remove button next to the other player. Confirm that player sees the removed screen, the host's list updates, and the kicked window cannot immediately rejoin.
-7. Close the host's tab. The other player should become host.
-8. Try joining with a bad code, a full room, and a room that has already started; each should be rejected with a message.
+4. In a third window, create a **Public** room. Without reloading the first window, confirm it appears under **Or join a public room** with the host name, player count, and categories.
+5. Join that public room from the list. Confirm the player count updates live and the room leaves the list once the host starts the game.
+6. Confirm both windows update the player list and the host badge.
+7. Confirm **Start game** is host-only and disabled with one player.
+8. As host, click the remove button next to the other player. Confirm that player sees the removed screen, the host's list updates, and the kicked window cannot immediately rejoin.
+9. Close the host's tab. The other player should become host.
+10. Try joining with a bad code, a full room, and a room that has already started; each should be rejected with a message.
 
 ### Step 2 — Turns and word choice
 

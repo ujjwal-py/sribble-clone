@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { RoomSettings } from '../types';
+import { PublicRoomInfo, RoomSettings } from '../types';
 import { makeRoomCode } from '../utils/random';
 import { Room } from './Room';
 
@@ -26,6 +26,25 @@ export class RoomManager {
     if (!room) return;
     room.destroy();
     this.rooms.delete(code);
+  }
+
+  /**
+   * Rooms that anyone may join right now: public, still in the lobby, and not
+   * full. Sorted by activity so busy rooms are easiest to find.
+   */
+  listPublic(): PublicRoomInfo[] {
+    const list: PublicRoomInfo[] = [];
+
+    for (const room of this.rooms.values()) {
+      if (room.settings.visibility !== 'public') continue;
+      if (room.game.phase !== 'lobby') continue;
+      if (room.isFull()) continue;
+      list.push(room.toPublicInfo());
+    }
+
+    return list.sort(
+      (a, b) => b.playerCount - a.playerCount || a.code.localeCompare(b.code),
+    );
   }
 }
 

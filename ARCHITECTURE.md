@@ -109,6 +109,8 @@ Responsibilities:
 
 Generates unique 6-character codes and owns the in-memory map. `delete()` calls `Room.destroy()` so timers do not survive a deleted room.
 
+`listPublic()` builds the public room browser: it keeps only rooms whose `settings.visibility` is `public`, that are still in the `lobby` phase, and that have a free seat. The result is sorted by player count so busier rooms appear first. Each entry comes from `Room.toPublicInfo()`, which exposes only the code, host name, player count, limits, and categories — never strokes, words, or scores.
+
 ## 3. Phase state machine
 
 ```
@@ -143,6 +145,14 @@ roundEnd ◄────────────────────┘
 5. Existing lobby members receive `player_joined` with the updated player list and host id.
 
 Joining is only allowed in the `lobby` phase, which enforces "game not already started".
+
+### Public room browser
+
+Every room is created with `settings.visibility`, either `private` (the default) or `public`. The server normalizes the value, so anything other than `"public"` becomes `private`.
+
+`HomePage` emits `subscribe_public_rooms` on mount. The socket joins a dedicated `public-lobby` Socket.IO room (room codes never contain a dash, so it cannot collide with a game room) and immediately receives `public_rooms { rooms }`. Every mutation that changes the browser — create, join, leave, kick, `start_game`, and `play_again` — calls `broadcastPublicRooms(io)`, so the list stays live without polling. Leaving the home page emits `unsubscribe_public_rooms`.
+
+Clicking **Join** in the browser is an ordinary `join_room` with the code from the list, so all of the existing checks (kick guard, phase, capacity) still apply. The only difference between the two room types is discoverability: private rooms are reachable only with the code or invite link.
 
 ### Host moderation
 
@@ -368,7 +378,7 @@ Dark mode is pure CSS: `data-theme="dark"` on `<html>` switches the custom prope
 
 ## 11. Extra event names
 
-The required event names are used. Six small events were added because they make the implementation simpler and keep payloads small:
+The required event names are used. Nine small events were added because they make the implementation simpler and keep payloads small:
 
 | Event | Direction | Why |
 | --- | --- | --- |
@@ -376,6 +386,9 @@ The required event names are used. Six small events were added because they make
 | `players_update` | server → room | Live score/guessed updates without resending strokes |
 | `kick_player` | client → server | Host removes a player from the room |
 | `kicked` | server → target | Tells the removed player why their seat closed |
+| `subscribe_public_rooms` | client → server | Joins the public room browser feed and gets the first snapshot |
+| `unsubscribe_public_rooms` | client → server | Stops the feed when the home page unmounts |
+| `public_rooms` | server → browsers | Pushes the current public room list |
 | `play_again` | client → server | Host returns everyone to the lobby after game over |
 | `leave_room` | client → server | Explicit leave when navigating back to the home page |
 

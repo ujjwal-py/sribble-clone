@@ -6,9 +6,9 @@ Built for an internship assignment with a deliberately small, readable codebase.
 
 ## What is included
 
-- Create a room with name, max players (2–20), rounds (2–10), draw time (15–240s), and word options (1–5)
+- Create a room with name, max players (2–20), rounds (2–10), draw time (15–240s), word options (1–5), and word categories
 - Join by 6-character room code or shared `/room/:code` link
-- Live lobby with host badge, invite link, and host-only start button
+- Live lobby with host badge, invite link, host-only start button, and host kick controls
 - Join-order turns: every player draws once per round
 - Drawer gets word options and a 15-second auto-pick timer
 - Live canvas sync with normalized coordinates
@@ -29,7 +29,7 @@ Rooms are stored in server memory. There is no database.
 | Client | React, TypeScript, Vite, HTML5 Canvas |
 | Server | Node.js, Express, TypeScript, Socket.IO |
 | UI | Lucide icons, Fontsource (Fredoka + Nunito) |
-| Words | Hardcoded `server/src/data/words.json` (100 words) |
+| Words | Hardcoded `server/src/data/words.json` (100 words across 8 categories) |
 | Transport | Socket.IO events + acknowledgements |
 
 ## Project layout
@@ -45,6 +45,7 @@ scribble_web3task/
 │  │  ├─ socket.ts         # one typed Socket.IO client
 │  │  ├─ theme.ts          # persisted light/dark preference
 │  │  ├─ types.ts          # client copies of payload types
+│  │  ├─ wordCategories.ts # category labels/icons for room creation
 │  │  └─ styles.css
 │  └─ .env.example
 ├─ server/
@@ -182,20 +183,22 @@ These match the build order and are easy to repeat manually.
 ### Step 1 — Theme, rooms, and lobby
 
 1. Toggle between **Dark** and **Light** mode. Reload the page and confirm your choice is remembered.
-2. Create a room. Confirm the 6-character code and invite link appear.
+2. Create a room with only one word category selected. Confirm the 6-character code, invite link, and category chip appear.
 3. Open the invite link in a second window, enter another name, and join.
 4. Confirm both windows update the player list and the host badge.
 5. Confirm **Start game** is host-only and disabled with one player.
-6. Close the host's tab. The other player should become host.
-7. Try joining with a bad code, a full room, and a room that has already started; each should be rejected with a message.
+6. As host, click the remove button next to the other player. Confirm that player sees the removed screen, the host's list updates, and the kicked window cannot immediately rejoin.
+7. Close the host's tab. The other player should become host.
+8. Try joining with a bad code, a full room, and a room that has already started; each should be rejected with a message.
 
 ### Step 2 — Turns and word choice
 
 1. Start with two players and confirm the first player in join order draws first.
 2. Only the drawer should see word option buttons. Everyone else sees "… is choosing a word".
-3. Pick a word and confirm the draw timer starts for everyone.
-4. Alternatively, do not pick: after 15 seconds the server auto-picks one of the shown options.
-5. Finish a turn and confirm the next player draws; after the last player, the round number increases.
+3. Confirm every offered word belongs to the room's selected categories.
+4. Pick a word and confirm the draw timer starts for everyone.
+5. Alternatively, do not pick: after 15 seconds the server auto-picks one of the shown options.
+6. Finish a turn and confirm the next player draws; after the last player, the round number increases.
 
 ### Step 3 — Canvas
 
@@ -225,4 +228,3 @@ These match the build order and are easy to repeat manually.
 4. Disconnect a non-host player; their future turns are skipped.
 5. Leave one player alone mid-game; the game should end and show standings.
 6. Close all tabs; the server should remove the room and clear its timers.
-

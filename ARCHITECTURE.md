@@ -70,6 +70,12 @@ Responsibilities:
 
 Host transfer happens in `removePlayer`: if the host left, the first remaining player becomes host. `player_left` includes the new `hostId`.
 
+### Word categories
+
+`RoomSettings` carries a `categories` array alongside the numeric settings. `server/src/data/words.json` is keyed by category (`food`, `animals`, `places`, `vehicles`, `nature`, `music-tech`, `objects`, `fantasy`), and `getWordPool(categories)` returns the union of the selected pools.
+
+The socket layer normalizes the array against `WORD_CATEGORY_IDS`: unknown IDs are dropped, duplicates are removed, and an empty or invalid selection falls back to every category. `Game.startTurn()` picks the drawer's options from that filtered pool, so category choice never changes the guess/scoring rules.
+
 ### `Game`
 
 ```ts
@@ -92,7 +98,7 @@ Responsibilities:
 
 - phase transitions
 - turn rotation and round counting
-- word options, auto-pick, and the 15-second choice timer
+- word options from the selected category pool, auto-pick, and the 15-second choice timer
 - starting/stopping the draw timer
 - validating guesses and calculating points
 - ending rounds/games
@@ -131,12 +137,25 @@ roundEnd ◄────────────────────┘
 ### Create / join
 
 1. Client emits `create_room` or `join_room` with an acknowledgement callback.
-2. Server validates the name, settings, code, room capacity, and phase.
+2. Server validates the name, settings (including category IDs), code, room capacity, kick state, and phase.
 3. Server adds a `Player`, stores `socket.data.roomCode`, and calls `socket.join(code)`.
 4. The ack returns `{ playerId, code, state }`. `HomePage` navigates to `/room/:code` and passes that state to `RoomPage`.
 5. Existing lobby members receive `player_joined` with the updated player list and host id.
 
 Joining is only allowed in the `lobby` phase, which enforces "game not already started".
+
+### Host moderation
+
+The host can emit `kick_player { playerId }` from the lobby or an active turn. The server rejects the event unless the sender is the host, the target exists, and the target is not the host. Kicks are ignored during `roundEnd` and `gameOver` so the result overlays keep a stable player list.
+
+A successful kick:
+
+1. Removes the target socket from the Socket.IO room and clears its `roomCode` so it does not receive round/game events caused by its own departure.
+2. Calls `Room.kickPlayer()`, which records the socket id in `kickedIds` and then runs the normal `removePlayer()` path.
+3. Sends `kicked { byName, reason }` directly to the target.
+4. Broadcasts `player_left` with the updated players and host id to the remaining room.
+
+Because `removePlayer()` is reused, a kicked drawer ends the round with `drawer_left`, a kicked guesser can trigger the all-guessed or fewer-than-two-players paths, and host transfer still works if the host later leaves. `join_room` rejects a socket whose id is in `kickedIds`; a refreshed browser gets a new socket id, so this is an immediate-rejoin guard rather than a permanent ban.
 
 ### Start and word choice
 
@@ -144,7 +163,7 @@ Joining is only allowed in the `lobby` phase, which enforces "game not already s
 2. Server checks host, phase, and player count.
 3. `Game.startGame()` resets scores, snapshots join order into `turnOrder`, and calls `startTurn()`.
 4. `round_start` goes to everyone: round, drawer, and `chooseEndsAt`.
-5. `word_options` goes **only** to the drawer's socket.
+5. `word_options` goes **only** to the drawer's socket and contains words from the room's selected categories.
 6. Drawer emits `word_chosen { word }`.
 7. Server verifies the sender is the drawer and that the word is one of the offered options.
 8. `Game.chooseWord` starts the draw timer and sends `word_chosen` to each player separately. Only the drawer's payload contains `word`; everyone gets `maskedWord` and `wordLength`.
@@ -349,12 +368,14 @@ Dark mode is pure CSS: `data-theme="dark"` on `<html>` switches the custom prope
 
 ## 11. Extra event names
 
-The required event names are used. Four small events were added because they make the implementation simpler and keep payloads small:
+The required event names are used. Six small events were added because they make the implementation simpler and keep payloads small:
 
 | Event | Direction | Why |
 | --- | --- | --- |
 | `word_options` | server → drawer | Sends the choices without putting them in a public payload |
 | `players_update` | server → room | Live score/guessed updates without resending strokes |
+| `kick_player` | client → server | Host removes a player from the room |
+| `kicked` | server → target | Tells the removed player why their seat closed |
 | `play_again` | client → server | Host returns everyone to the lobby after game over |
 | `leave_room` | client → server | Explicit leave when navigating back to the home page |
 
@@ -362,6 +383,7 @@ The required event names are used. Four small events were added because they mak
 
 - **No token-based reconnect.** `id` is the socket id, and a disconnect removes the player. This matches the assignment's leave rules. Supporting refresh/reconnect mid-game would require a persistent player token, a grace period, and turn-order restoration.
 - Rooms are process memory only. Restarting the server deletes them.
+- **Kicks are socket-scoped.** A kicked socket cannot immediately rejoin, but a refresh creates a new socket id and bypasses the guard. A durable ban would need identity or a room-level name/IP block.
 - **Fill is rasterized client-side.** The server records and orders the operation and validates the drawer, but does not run a canvas rasterization engine. Fill boundaries can differ by a few pixels across very different canvas sizes.
 - The countdown display uses the browser clock. The server's timers remain authoritative; clock skew only affects what the number looks like.
 - The client throttles drawing, but the server does not rate-limit malicious clients beyond validating sender, phase, coordinate ranges, stroke length, tool, and color/size formats.

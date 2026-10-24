@@ -6,6 +6,7 @@ import {
   House,
   LoaderCircle,
   LogIn,
+  UserX,
   WifiOff,
 } from 'lucide-react';
 import type { CanvasHandle } from '../components/CanvasBoard';
@@ -53,6 +54,7 @@ export default function RoomPage() {
   const [joinError, setJoinError] = useState('');
   const [online, setOnline] = useState(socket.connected);
   const [disconnected, setDisconnected] = useState(false);
+  const [kicked, setKicked] = useState<{ byName: string; reason: string } | null>(null);
 
   const canvasRef = useRef<CanvasHandle>(null);
   const inRoomRef = useRef(Boolean(initial));
@@ -206,6 +208,12 @@ export default function RoomPage() {
       });
     };
 
+    const handleKicked = (payload: { byName: string; reason: string }): void => {
+      inRoomRef.current = false;
+      setDisconnected(false);
+      setKicked(payload);
+    };
+
     const handleConnect = (): void => {
       setOnline(true);
       if (!inRoomRef.current) setDisconnected(false);
@@ -230,6 +238,7 @@ export default function RoomPage() {
     socket.on('game_over', handleGameOver);
     socket.on('guess_result', handleGuessResult);
     socket.on('chat_message', handleChatMessage);
+    socket.on('kicked', handleKicked);
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
     setOnline(socket.connected);
@@ -249,6 +258,7 @@ export default function RoomPage() {
       socket.off('game_over', handleGameOver);
       socket.off('guess_result', handleGuessResult);
       socket.off('chat_message', handleChatMessage);
+      socket.off('kicked', handleKicked);
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
     };
@@ -277,6 +287,37 @@ export default function RoomPage() {
       setRoom(response.state);
       setOnline(true);
     });
+  }
+
+  function handleKick(targetId: string): void {
+    const target = room?.players.find((player) => player.id === targetId);
+    if (!target) return;
+    if (!window.confirm(`Remove ${target.name} from the room?`)) return;
+    socket.emit('kick_player', { playerId: targetId });
+  }
+
+  if (kicked) {
+    return (
+      <div className="center-page">
+        <div className="card join-room-card kicked-card">
+          <div className="kicked-icon">
+            <UserX className="icon" aria-hidden="true" />
+          </div>
+          <h1>Removed from the room</h1>
+          <p className="muted">
+            {kicked.byName} removed you from this room.
+          </p>
+          <p className="muted small">{kicked.reason}</p>
+          <button
+            type="button"
+            className="btn btn-primary btn-large"
+            onClick={() => navigate('/')}
+          >
+            <House className="icon" aria-hidden="true" /> Back to home
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!room || !playerId) {
@@ -357,6 +398,7 @@ export default function RoomPage() {
           room={room}
           playerId={playerId}
           onStart={() => socket.emit('start_game')}
+          onKick={handleKick}
           onLeave={() => navigate('/')}
         />
       ) : (
@@ -376,6 +418,7 @@ export default function RoomPage() {
             setGuessNote('');
             socket.emit('guess', { text });
           }}
+          onKick={handleKick}
           onPlayAgain={() => socket.emit('play_again')}
           onLeave={() => navigate('/')}
         />

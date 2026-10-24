@@ -1,7 +1,14 @@
 import { Server, Socket } from 'socket.io';
 import { rooms } from './game/RoomManager';
 import { Room } from './game/Room';
-import { DrawTool, JoinAck, Point, RoomSettings } from './types';
+import {
+  DrawTool,
+  JoinAck,
+  Point,
+  RoomSettings,
+  WORD_CATEGORY_IDS,
+  WordCategory,
+} from './types';
 import { makeId } from './utils/random';
 
 const DEFAULT_SETTINGS: RoomSettings = {
@@ -9,7 +16,20 @@ const DEFAULT_SETTINGS: RoomSettings = {
   rounds: 3,
   drawTime: 80,
   wordCount: 3,
+  categories: [...WORD_CATEGORY_IDS],
 };
+
+function normalizeCategories(raw: unknown): WordCategory[] {
+  if (!Array.isArray(raw)) return [...WORD_CATEGORY_IDS];
+
+  const selected = raw.filter(
+    (value): value is WordCategory =>
+      typeof value === 'string' &&
+      (WORD_CATEGORY_IDS as readonly string[]).includes(value),
+  );
+
+  return selected.length > 0 ? [...new Set(selected)] : [...WORD_CATEGORY_IDS];
+}
 
 function clampInt(value: unknown, min: number, max: number, fallback: number): number {
   const number = Number(value);
@@ -24,6 +44,7 @@ function normalizeSettings(raw: unknown): RoomSettings {
     rounds: clampInt(input.rounds, 2, 10, DEFAULT_SETTINGS.rounds),
     drawTime: clampInt(input.drawTime, 15, 240, DEFAULT_SETTINGS.drawTime),
     wordCount: clampInt(input.wordCount, 1, 5, DEFAULT_SETTINGS.wordCount),
+    categories: normalizeCategories(input.categories),
   };
 }
 
@@ -145,6 +166,11 @@ export function registerSocketHandlers(io: Server): void {
         return;
       }
 
+      if (room.isKicked(socket.id)) {
+        reply(ack, { ok: false, error: 'You were removed from this room by the host.' });
+        return;
+      }
+
       if (room.game.phase !== 'lobby') {
         reply(ack, { ok: false, error: 'That game has already started.' });
         return;
@@ -185,6 +211,47 @@ export function registerSocketHandlers(io: Server): void {
 
       console.log(`[room ${room.code}] game started by host`);
       room.game.startGame();
+    });
+
+    socket.on('kick_player', (payload: any) => {
+      const room = currentRoom(socket);
+      if (!room || socket.id !== room.hostId) return;
+      if (room.game.phase === 'roundEnd' || room.game.phase === 'gameOver') return;
+
+      const targetId = typeof payload?.playerId === 'string' ? payload.playerId : '';
+      if (!targetId || targetId === socket.id) return;
+
+      const target = room.getPlayer(targetId);
+      const host = room.getPlayer(socket.id);
+      if (!target || !host) return;
+
+      // Remove the target from the socket room first so game events caused by
+      // their departure (round_end, game_over) do not reach the kicked client.
+      const targetSocket = io.sockets.sockets.get(targetId);
+      targetSocket?.leave(room.code);
+      if (targetSocket) targetSocket.data.roomCode = undefined;
+
+      const player = room.kickPlayer(targetId);
+      if (!player) return;
+
+      targetSocket?.emit('kicked', {
+        byName: host.name,
+        reason: 'The host removed you from the room.',
+      });
+
+      console.log(`[room ${room.code}] ${player.name} was kicked by ${host.name}`);
+
+      if (room.players.length === 0) {
+        rooms.delete(room.code);
+        return;
+      }
+
+      room.broadcast('player_left', {
+        playerId: player.id,
+        name: player.name,
+        players: room.players.map((entry) => entry.toInfo()),
+        hostId: room.hostId,
+      });
     });
 
     socket.on('word_chosen', (payload: any) => {

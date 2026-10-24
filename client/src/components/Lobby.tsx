@@ -8,11 +8,13 @@ import {
   LoaderCircle,
   Play,
   Sparkles,
+  Tags,
   Timer,
   Trophy,
   Users,
 } from 'lucide-react';
 import type { RoomState } from '../types';
+import { categorySummary } from '../wordCategories';
 import PlayersPanel from './PlayersPanel';
 import ThemeToggle from './ThemeToggle';
 
@@ -20,10 +22,11 @@ interface LobbyProps {
   room: RoomState;
   playerId: string;
   onStart: () => void;
+  onKick: (playerId: string) => void;
   onLeave: () => void;
 }
 
-export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) {
+export default function Lobby({ room, playerId, onStart, onKick, onLeave }: LobbyProps) {
   const [copied, setCopied] = useState(false);
   const isHost = room.hostId === playerId;
   const inviteUrl = `${window.location.origin}/room/${room.code}`;
@@ -97,6 +100,10 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
               <Sparkles className="icon" aria-hidden="true" /> {room.settings.wordCount} word choices
             </span>
             <span>
+              <Tags className="icon" aria-hidden="true" />{' '}
+              {categorySummary(room.settings.categories)}
+            </span>
+            <span>
               <Users className="icon" aria-hidden="true" /> max {room.settings.maxPlayers} players
             </span>
           </div>
@@ -124,7 +131,7 @@ export default function Lobby({ room, playerId, onStart, onLeave }: LobbyProps) 
           )}
         </section>
 
-        <PlayersPanel room={room} playerId={playerId} />
+        <PlayersPanel room={room} playerId={playerId} onKick={onKick} />
       </main>
     </div>
   );

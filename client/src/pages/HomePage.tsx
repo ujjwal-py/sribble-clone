@@ -9,19 +9,22 @@ import {
   Plus,
   ShieldCheck,
   Sparkles,
+  Tags,
   Trophy,
   Users,
   WifiOff,
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { socket } from '../socket';
-import type { JoinResponse, RoomSettings } from '../types';
+import type { JoinResponse, RoomSettings, WordCategory } from '../types';
+import { ALL_WORD_CATEGORIES, WORD_CATEGORIES } from '../wordCategories';
 
 const DEFAULT_SETTINGS: RoomSettings = {
   maxPlayers: 8,
   rounds: 3,
   drawTime: 80,
   wordCount: 3,
+  categories: [...ALL_WORD_CATEGORIES],
 };
 
 interface SelectFieldProps {
@@ -82,6 +85,27 @@ export default function HomePage() {
 
   function updateSetting<K extends keyof RoomSettings>(key: K, value: number): void {
     setSettings((previous) => ({ ...previous, [key]: value }));
+  }
+
+  function toggleCategory(category: WordCategory): void {
+    setSettings((previous) => {
+      const isSelected = previous.categories.includes(category);
+      if (isSelected && previous.categories.length === 1) return previous;
+
+      return {
+        ...previous,
+        categories: isSelected
+          ? previous.categories.filter((entry) => entry !== category)
+          : [...previous.categories, category],
+      };
+    });
+  }
+
+  function selectAllCategories(): void {
+    setSettings((previous) => ({
+      ...previous,
+      categories: [...ALL_WORD_CATEGORIES],
+    }));
   }
 
   function handleCreate(event: FormEvent): void {
@@ -219,6 +243,41 @@ export default function HomePage() {
                   options={range(1, 5)}
                   onChange={(value) => updateSetting('wordCount', value)}
                 />
+              </div>
+
+              <div className="field category-field">
+                <span className="field-label">
+                  <Tags className="icon" aria-hidden="true" /> Word categories
+                </span>
+                <div className="category-grid">
+                  {WORD_CATEGORIES.map(({ id, label, icon: Icon }) => {
+                    const selected = settings.categories.includes(id);
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={selected ? 'category-chip is-selected' : 'category-chip'}
+                        aria-pressed={selected}
+                        onClick={() => toggleCategory(id)}
+                      >
+                        <Icon className="icon" aria-hidden="true" /> {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="category-actions">
+                  <span className="muted small">
+                    Words are drawn from the selected categories.
+                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-small"
+                    onClick={selectAllCategories}
+                    disabled={settings.categories.length === WORD_CATEGORIES.length}
+                  >
+                    Select all
+                  </button>
+                </div>
               </div>
 
               {createError && <p className="form-error">{createError}</p>}

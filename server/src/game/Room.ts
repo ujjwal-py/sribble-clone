@@ -8,6 +8,7 @@ export class Room {
   hostId: string | null = null;
   strokes: Stroke[] = [];
   game: Game;
+  private kickedIds = new Set<string>();
 
   constructor(
     public code: string,
@@ -52,6 +53,20 @@ export class Room {
     return player;
   }
 
+  /**
+   * Removes a player and remembers their socket id so the same connection
+   * cannot immediately rejoin the room it was kicked from.
+   */
+  kickPlayer(id: string): Player | null {
+    const player = this.removePlayer(id);
+    if (player) this.kickedIds.add(id);
+    return player;
+  }
+
+  isKicked(id: string): boolean {
+    return this.kickedIds.has(id);
+  }
+
   broadcast(event: string, payload?: unknown): void {
     this.io.to(this.code).emit(event, payload);
   }
@@ -75,5 +90,6 @@ export class Room {
   destroy(): void {
     this.game.clearTimers();
     this.strokes = [];
+    this.kickedIds.clear();
   }
 }

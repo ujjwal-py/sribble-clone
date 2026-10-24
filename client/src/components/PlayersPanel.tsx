@@ -1,16 +1,19 @@
-import { Check, Crown, Pencil, Trophy, Users } from 'lucide-react';
+import { Check, Crown, Pencil, Trophy, UserX, Users } from 'lucide-react';
 import type { RoomState } from '../types';
 
 interface PlayersPanelProps {
   room: RoomState;
   playerId: string;
+  onKick: (playerId: string) => void;
 }
 
-export default function PlayersPanel({ room, playerId }: PlayersPanelProps) {
+export default function PlayersPanel({ room, playerId, onKick }: PlayersPanelProps) {
   const players =
     room.phase === 'lobby'
       ? room.players
       : [...room.players].sort((a, b) => b.score - a.score);
+  const canModerate =
+    room.hostId === playerId && room.phase !== 'roundEnd' && room.phase !== 'gameOver';
 
   return (
     <section className="panel players-panel">
@@ -64,6 +67,18 @@ export default function PlayersPanel({ room, playerId }: PlayersPanelProps) {
               <span className="guessed-mark" title="Guessed correctly">
                 <Check className="icon" aria-hidden="true" />
               </span>
+            )}
+
+            {canModerate && player.id !== playerId && (
+              <button
+                type="button"
+                className="btn btn-kick"
+                title={`Remove ${player.name} from the room`}
+                aria-label={`Remove ${player.name} from the room`}
+                onClick={() => onKick(player.id)}
+              >
+                <UserX className="icon" aria-hidden="true" />
+              </button>
             )}
           </li>
         ))}

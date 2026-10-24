@@ -1,14 +1,13 @@
-import words from '../data/words.json';
 import { Phase, RoundEndPayload, RoundEndReason } from '../types';
 import { makeId, pickRandom, pickWords } from '../utils/random';
 import type { Room } from './Room';
+import { getWordPool } from './words';
 
 const CHOOSE_TIME_MS = 15_000;
 const ROUND_END_MS = 6_000;
 const DRAWER_POINTS_PER_GUESSER = 50;
 const MIN_GUESS_POINTS = 100;
 const MAX_GUESS_POINTS = 200;
-const WORD_POOL = words as string[];
 
 type Timer = NodeJS.Timeout;
 
@@ -81,7 +80,10 @@ export class Game {
     this.phase = 'choosing';
     this.drawerId = drawer.id;
     this.currentWord = null;
-    this.wordOptions = pickWords(WORD_POOL, this.room.settings.wordCount);
+    this.wordOptions = pickWords(
+      getWordPool(this.room.settings.categories),
+      this.room.settings.wordCount,
+    );
     this.chooseEndsAt = Date.now() + CHOOSE_TIME_MS;
     this.roundEndsAt = null;
     this.roundPoints = {};

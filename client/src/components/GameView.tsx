@@ -38,6 +38,7 @@ interface GameViewProps {
   onUndo: () => void;
   onClear: () => void;
   onGuess: (text: string) => void;
+  onKick: (playerId: string) => void;
   onPlayAgain: () => void;
   onLeave: () => void;
 }
@@ -55,6 +56,7 @@ export default function GameView({
   onUndo,
   onClear,
   onGuess,
+  onKick,
   onPlayAgain,
   onLeave,
 }: GameViewProps) {
@@ -224,7 +226,7 @@ export default function GameView({
         </main>
 
         <aside className="game-sidebar">
-          <PlayersPanel room={room} playerId={playerId} />
+          <PlayersPanel room={room} playerId={playerId} onKick={onKick} />
           <div className="panel tip-panel">
             <h2>
               <Target className="icon" aria-hidden="true" /> How to score

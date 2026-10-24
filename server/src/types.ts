@@ -1,10 +1,25 @@
 export type Phase = 'lobby' | 'choosing' | 'drawing' | 'roundEnd' | 'gameOver';
 
+// Keep these IDs in sync with client/src/types.ts and wordCategories.ts.
+export const WORD_CATEGORY_IDS = [
+  'food',
+  'animals',
+  'places',
+  'vehicles',
+  'nature',
+  'music-tech',
+  'objects',
+  'fantasy',
+] as const;
+
+export type WordCategory = (typeof WORD_CATEGORY_IDS)[number];
+
 export interface RoomSettings {
   maxPlayers: number; // 2-20
   rounds: number; // 2-10
   drawTime: number; // seconds, 15-240
   wordCount: number; // word options shown to the drawer, 1-5
+  categories: WordCategory[]; // word pools available for this room
 }
 
 export interface Point {

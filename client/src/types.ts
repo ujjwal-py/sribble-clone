@@ -1,10 +1,22 @@
 export type Phase = 'lobby' | 'choosing' | 'drawing' | 'roundEnd' | 'gameOver';
 
+// Keep this union in sync with server/src/types.ts.
+export type WordCategory =
+  | 'food'
+  | 'animals'
+  | 'places'
+  | 'vehicles'
+  | 'nature'
+  | 'music-tech'
+  | 'objects'
+  | 'fantasy';
+
 export interface RoomSettings {
   maxPlayers: number;
   rounds: number;
   drawTime: number;
   wordCount: number;
+  categories: WordCategory[];
 }
 
 export interface PlayerInfo {
@@ -121,6 +133,7 @@ export interface ServerToClientEvents {
   chat_message: (payload: ChatMessage) => void;
   round_end: (payload: RoundEndPayload) => void;
   game_over: (payload: GameOverPayload) => void;
+  kicked: (payload: { byName: string; reason: string }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -140,6 +153,7 @@ export interface ClientToServerEvents {
   draw_undo: () => void;
   canvas_clear: () => void;
   guess: (payload: { text: string }) => void;
+  kick_player: (payload: { playerId: string }) => void;
   play_again: () => void;
   leave_room: () => void;
 }

@@ -1,12 +1,29 @@
-[
-  "apple", "banana", "orange", "grape", "lemon", "cherry", "strawberry", "pineapple", "watermelon", "peach",
-  "carrot", "potato", "tomato", "onion", "pepper", "cucumber", "pumpkin", "broccoli", "mushroom", "corn",
-  "dog", "cat", "elephant", "giraffe", "monkey", "tiger", "lion", "bear", "rabbit", "penguin",
-  "dolphin", "whale", "shark", "octopus", "butterfly", "spider", "bee", "ant", "turtle", "snake",
-  "house", "castle", "bridge", "tower", "lighthouse", "windmill", "tent", "igloo", "pyramid", "skyscraper",
-  "car", "bicycle", "train", "airplane", "helicopter", "boat", "rocket", "tractor", "bus", "motorcycle",
-  "sun", "moon", "star", "cloud", "rainbow", "mountain", "volcano", "river", "waterfall", "island",
-  "guitar", "piano", "drum", "violin", "trumpet", "headphones", "microphone", "camera", "television", "telephone",
-  "book", "pencil", "scissors", "umbrella", "clock", "key", "lamp", "chair", "table", "mirror",
-  "snowman", "robot", "ghost", "dragon", "alien", "pirate", "crown", "balloon", "pizza", "hamburger"
-]
+{
+  "food": [
+    "apple", "banana", "orange", "grape", "lemon", "cherry", "strawberry", "pineapple", "watermelon", "peach",
+    "carrot", "potato", "tomato", "onion", "pepper", "cucumber", "pumpkin", "broccoli", "mushroom", "corn",
+    "pizza", "hamburger"
+  ],
+  "animals": [
+    "dog", "cat", "elephant", "giraffe", "monkey", "tiger", "lion", "bear", "rabbit", "penguin",
+    "dolphin", "whale", "shark", "octopus", "butterfly", "spider", "bee", "ant", "turtle", "snake"
+  ],
+  "places": [
+    "house", "castle", "bridge", "tower", "lighthouse", "windmill", "tent", "igloo", "pyramid", "skyscraper"
+  ],
+  "vehicles": [
+    "car", "bicycle", "train", "airplane", "helicopter", "boat", "rocket", "tractor", "bus", "motorcycle"
+  ],
+  "nature": [
+    "sun", "moon", "star", "cloud", "rainbow", "mountain", "volcano", "river", "waterfall", "island"
+  ],
+  "music-tech": [
+    "guitar", "piano", "drum", "violin", "trumpet", "headphones", "microphone", "camera", "television", "telephone"
+  ],
+  "objects": [
+    "book", "pencil", "scissors", "umbrella", "clock", "key", "lamp", "chair", "table", "mirror"
+  ],
+  "fantasy": [
+    "snowman", "robot", "ghost", "dragon", "alien", "pirate", "crown", "balloon"
+  ]
+}
